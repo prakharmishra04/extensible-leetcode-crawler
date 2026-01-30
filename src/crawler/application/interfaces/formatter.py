@@ -45,11 +45,7 @@ class OutputFormatter(ABC):
             >>> submission = Submission(code="def twoSum(...):", ...)
             >>> output = formatter.format_problem(problem, submission)
             >>> print(output[:50])
-            '"""
-            Two Sum
-            Difficulty: Easy
-            Platform: leetcode
-            ...'
+            'Problem: Two Sum, Difficulty: Easy, Platform: leetcode'
         
         Note:
             The formatted output should include:

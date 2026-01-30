@@ -1,0 +1,32 @@
+# Example YAML configuration file for the Coding Platform Crawler
+# Copy this file to config.yaml and fill in your credentials
+
+# LeetCode Configuration
+leetcode_graphql_url: "https://leetcode.com/graphql"
+leetcode_session_token: "your_leetcode_session_token_here"
+leetcode_username: "your_leetcode_username"
+
+# Future Platform Credentials (for Phase 3 multi-platform support)
+# hackerrank_api_key: "your_hackerrank_api_key"
+# codechef_username: "your_codechef_username"
+# codechef_password: "your_codechef_password"
+# codeforces_api_key: "your_codeforces_api_key"
+# codeforces_api_secret: "your_codeforces_api_secret"
+
+# Rate Limiting Configuration
+requests_per_second: 2.0
+
+# Retry Configuration
+max_retries: 3
+initial_delay: 1.0
+max_delay: 60.0
+exponential_base: 2.0
+jitter: true
+
+# Output Configuration
+output_dir: "./problems"
+default_format: "python"  # Options: python, markdown, json
+
+# Logging Configuration
+log_level: "INFO"  # Options: DEBUG, INFO, WARNING, ERROR, CRITICAL
+# log_file: "./logs/crawler.log"  # Uncomment to enable file logging
