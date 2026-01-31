@@ -5,6 +5,48 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## \[2.0.3\] - 2026-01-31
+
+### 🐛 Bug Fixes
+
+- **Fixed `--limit` to apply to NEW problems only in SKIP mode** - The `--limit` parameter now correctly applies to new problems to download, not total problems including already-downloaded ones. Previously, with 150 solved problems and 50 already downloaded, `--limit 50` would process the first 50 (all existing) and download 0 new problems. Now it downloads 50 NEW problems after filtering out existing ones.
+- **Added rate limit handling for LeetCode submission API** - Implemented 1-second delay after each submission fetch to avoid aggressive rate limiting. LeetCode's submission API has strict rate limits that apply to ALL users including Premium members.
+- **Added smart retry logic for 403/429 errors** - HTTP client now automatically retries requests that fail with 403 Forbidden or 429 Too Many Requests status codes, using exponential backoff (2x delay multiplier) to respect rate limits.
+
+### 🔄 Breaking Changes
+
+- **`--limit` behavior change in SKIP mode** - The `--limit` parameter now applies to NEW problems only when using `--mode skip`. Already-downloaded problems are pre-filtered before applying the limit.
+
+  **Old behavior:**
+
+  ```bash
+  # With 150 solved, 50 already downloaded
+  crawler batch user --limit 50 --mode skip
+  # Would process first 50 problems (all existing), download 0 new
+  ```
+
+  **New behavior:**
+
+  ```bash
+  # With 150 solved, 50 already downloaded
+  crawler batch user --limit 50 --mode skip
+  # Filters out 50 existing, then downloads 50 NEW problems
+  ```
+
+### ✨ Improvements
+
+- **Better handling of partial failures** - Batch download continues even if some submissions fail due to rate limits, ensuring maximum coverage
+- **Enhanced success logic** - Command success now determined by whether any failures occurred, properly handling cases where all problems were pre-filtered
+
+### 📝 Notes
+
+This patch addresses two critical issues:
+
+1. Rate limiting problems when fetching submissions during batch downloads
+1. Incorrect `--limit` behavior that counted already-downloaded problems
+
+The `--limit` change is considered breaking because it changes the behavior of the command, though it makes it work as users would intuitively expect.
+
 ## \[2.0.2\] - 2026-01-31
 
 ### 🐛 Bug Fixes

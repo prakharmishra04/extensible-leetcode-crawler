@@ -151,7 +151,6 @@ class TestBatchDownloadCommandSuccess:
         assert result.data.failed == 0
         assert result.error is None
 
-    @pytest.mark.skip(reason="Test needs update for pre-filtering behavior - TODO")
     def test_execute_success_with_skipped(
         self,
         mock_client,
@@ -161,20 +160,27 @@ class TestBatchDownloadCommandSuccess:
         mock_logger,
         sample_problems,
     ):
-        """Test batch download with some problems skipped.
+        """Test batch download with some problems skipped via pre-filtering.
 
         With pre-filtering in SKIP mode, already-existing problems are filtered
         out before download, so they don't appear in stats.total or stats.skipped.
+        The use case handles the pre-filtering, so the command only sees the
+        problems that will actually be downloaded.
         """
         # Arrange
         mock_client.fetch_all_problems_with_status.return_value = sample_problems
-        # Only return problems that will actually be downloaded (non-existing ones)
-        mock_client.fetch_problem.side_effect = lambda pid: next(
-            p for p in sample_problems if p.id == pid
-        )
+
+        # Mock repository.exists to simulate first problem already exists
+        # This will be called during pre-filtering in the use case
+        def exists_side_effect(problem_id, platform):
+            return problem_id == "two-sum"  # First problem exists
+
+        mock_repository.exists.side_effect = exists_side_effect
+
+        # Only the 2 non-existing problems will be fetched
+        non_existing_problems = [p for p in sample_problems if p.id != "two-sum"]
+        mock_client.fetch_problem.side_effect = non_existing_problems
         mock_client.fetch_submission.return_value = Mock()
-        # First problem exists, others don't
-        mock_repository.exists.side_effect = [True, False, False]
 
         command = BatchDownloadCommand(
             username="john_doe",
@@ -198,7 +204,7 @@ class TestBatchDownloadCommandSuccess:
         # Assert
         assert result.success is True
         assert "2 problem(s)" in result.message
-        # With pre-filtering, skipped problems don't appear in stats
+        # With pre-filtering, only non-existing problems appear in stats
         assert isinstance(result.data, DownloadStats)
         assert result.data.total == 2  # Only non-existing problems
         assert result.data.downloaded == 2
