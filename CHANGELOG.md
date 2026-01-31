@@ -1,0 +1,119 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [2.0.0] - 2026-01-31
+
+### 🎉 Initial Production Release
+
+This is the first production-ready release of the Coding Platform Crawler, a complete rewrite from v1 scripts with clean architecture, comprehensive testing, and professional CI/CD.
+
+### ✨ Features
+
+#### Core Functionality
+
+- **Download Individual Problems** - Fetch single problems with full descriptions and submissions
+- **Batch Download** - Download all solved problems at once with smart filtering
+- **List Problems** - View and filter downloaded problems by difficulty and topics
+- **Multiple Output Formats** - Support for Python, Markdown, and JSON formats
+- **Smart Update Modes** - Skip existing, update changed, or force overwrite
+- **Flexible Configuration** - CLI args, environment variables, or config files (YAML/JSON)
+
+#### Architecture & Design
+
+- **Clean Architecture** - Domain-driven design with clear separation of concerns
+- **SOLID Principles** - Maintainable and extensible codebase
+- **Extensible Platform Support** - Easy to add new coding platforms beyond LeetCode
+- **Robust Error Handling** - Automatic retries with exponential backoff
+- **Rate Limiting** - Configurable rate limiting to respect API limits
+- **Rich CLI Output** - Beautiful terminal output with progress indicators
+
+#### Developer Experience
+
+- **Comprehensive Testing** - 618 tests (588 unit + 29 integration + 1 e2e)
+- **89% Code Coverage** - Exceeds industry standard of 80%
+- **Type Hints** - Full type annotations throughout codebase
+- **Documentation** - Extensive README, architecture docs, and inline documentation
+- **Pre-commit Hooks** - Automated code quality checks (Black, flake8, mypy, etc.)
+
+### 🔧 Technical Details
+
+#### Supported Python Versions
+
+- Python 3.8, 3.9, 3.10, 3.11, 3.12
+
+#### Dependencies
+
+- `requests>=2.31.0` - HTTP client
+- `beautifulsoup4>=4.12.0` - HTML parsing
+- `lxml>=4.9.0` - XML/HTML parser
+- `pyyaml>=6.0` - YAML configuration
+- `rich>=13.0.0` - Terminal formatting
+
+#### CI/CD Pipeline
+
+- **GitHub Actions** - Automated testing on all Python versions
+- **Pre-commit Checks** - Code formatting and linting
+- **Code Quality** - Black, flake8, mypy, isort, bandit
+- **Coverage Reports** - Automated coverage tracking
+- **Release Automation** - Automatic PyPI publishing on version tags
+
+### 📦 Installation
+
+```bash
+# Install from PyPI
+pip install coding-platform-crawler
+
+# Or install from source
+git clone https://github.com/prakharmishra04/extensible-leetcode-crawler.git
+cd extensible-leetcode-crawler
+pip install -e .
+```
+
+### 🚀 Quick Start
+
+```bash
+# Download a single problem
+crawler download two-sum --platform leetcode
+
+# Batch download all solved problems
+crawler batch your-username --platform leetcode
+
+# List downloaded problems
+crawler list --difficulty Medium
+```
+
+### 📚 Documentation
+
+- [README.md](README.md) - Getting started guide
+- [ARCHITECTURE.md](ARCHITECTURE.md) - System architecture
+- [DEVELOPMENT.md](DEVELOPMENT.md) - Development guide
+- [CONTRIBUTING.md](CONTRIBUTING.md) - Contribution guidelines
+- [docs/CI_CD.md](docs/CI_CD.md) - CI/CD documentation
+
+### 🙏 Acknowledgments
+
+This project is a complete rewrite of the v1 scripts with:
+
+- Professional software architecture
+- Comprehensive test coverage
+- Production-ready CI/CD pipeline
+- Extensible design for future platforms
+
+### 🔗 Links
+
+- **GitHub Repository**: https://github.com/prakharmishra04/extensible-leetcode-crawler
+- **PyPI Package**: https://pypi.org/project/coding-platform-crawler/
+- **Issue Tracker**: https://github.com/prakharmishra04/extensible-leetcode-crawler/issues
+
+______________________________________________________________________
+
+## [1.0.0] - Legacy Scripts
+
+The v1 version consisted of standalone Python scripts in the `v1-scripts/` directory. These have been preserved for reference but are superseded by the v2.0.0 architecture.
+
+[1.0.0]: https://github.com/prakharmishra04/extensible-leetcode-crawler/tree/main/v1-scripts
+[2.0.0]: https://github.com/prakharmishra04/extensible-leetcode-crawler/releases/tag/v2.0.0
