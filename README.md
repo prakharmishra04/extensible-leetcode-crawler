@@ -102,8 +102,11 @@ crawler download two-sum --platform leetcode --format markdown
 ### Batch Download All Solved Problems
 
 ```bash
-# Download all your solutions
+# Download all your solutions (Note: LeetCode API limits to ~20 recent submissions)
 crawler batch your-username --platform leetcode
+
+# Download recent 100 problems (specify higher limit to get more)
+crawler batch your-username --platform leetcode --limit 100
 
 # Update only newer submissions
 crawler batch your-username --platform leetcode --mode update
@@ -114,6 +117,8 @@ crawler batch your-username --platform leetcode --difficulty Easy
 # Download only recent 50 problems
 crawler batch your-username --platform leetcode --mode skip --limit 50
 ```
+
+**Important Note:** LeetCode's API (`recentAcSubmissionList`) has limitations and typically returns only the most recent 20-100 accepted submissions, not all solved problems. To fetch more problems, use the `--limit` parameter with a higher value (e.g., `--limit 500`). The actual number returned depends on LeetCode's API limits.
 
 ### List Downloaded Problems
 

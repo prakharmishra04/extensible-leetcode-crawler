@@ -148,9 +148,13 @@ class LeetCodeClient(PlatformClient):
         Uses the LeetCode GraphQL API to fetch the list of problems
         that a user has solved (accepted submissions).
 
+        NOTE: LeetCode's recentAcSubmissionList API has limitations and may not
+        return all solved problems. For a complete list, consider using the
+        problemsetQuestionList API with solved status filter.
+
         Args:
             username: The LeetCode username
-            limit: Optional maximum number of problems to fetch (default: None = all, max: 1000)
+            limit: Optional maximum number of problems to fetch (default: None = all available)
 
         Returns:
             List of Problem entities for all solved problems (up to limit)
@@ -172,8 +176,9 @@ class LeetCodeClient(PlatformClient):
             + (f" (limit: {limit})" if limit else "")
         )
 
-        # Determine the actual limit to use (default to 1000 if not specified)
-        fetch_limit = min(limit, 1000) if limit else 1000
+        # LeetCode's recentAcSubmissionList is limited, so we fetch as much as possible
+        # The API typically returns up to 20-100 recent submissions
+        fetch_limit = limit if limit else 1000
 
         # GraphQL query for fetching user's solved problems
         query = """
@@ -214,14 +219,33 @@ class LeetCodeClient(PlatformClient):
             # Get list of solved problems
             submissions = data.get("data", {}).get("recentAcSubmissionList", [])
 
+            # Log warning if we got fewer problems than expected
+            total_solved = 0
+            submit_stats = data.get("data", {}).get("matchedUser", {}).get("submitStats", {})
+            if submit_stats:
+                ac_submissions = submit_stats.get("acSubmissionNum", [])
+                total_solved = sum(item.get("count", 0) for item in ac_submissions)
+
+                if len(submissions) < total_solved:
+                    self.logger.warning(
+                        f"LeetCode API returned {len(submissions)} problems but user has {total_solved} "
+                        f"total solved. The recentAcSubmissionList API is limited. "
+                        f"Use --limit to specify how many recent problems to fetch."
+                    )
+
             # Apply user-specified limit if provided
             if limit and limit < len(submissions):
                 submissions = submissions[:limit]
 
+            self.logger.info(f"Fetched {len(submissions)} submission records from API")
+
             # Fetch full details for each problem
             problems = []
-            for submission in submissions:
+            for i, submission in enumerate(submissions):
                 try:
+                    self.logger.debug(
+                        f"Fetching problem {i+1}/{len(submissions)}: {submission['titleSlug']}"
+                    )
                     problem = self.fetch_problem(submission["titleSlug"])
                     problems.append(problem)
                 except Exception as e:
