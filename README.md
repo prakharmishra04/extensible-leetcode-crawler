@@ -27,14 +27,21 @@ A well-architected Python toolkit for downloading and managing coding problems f
 ### 1. Install the Package
 
 ```bash
-# Install in development mode (recommended for local use)
+# Option A: Install as a package (recommended for end users)
 pip install -e .
+# This installs: requests, beautifulsoup4, lxml, pyyaml, rich
+# Plus the 'crawler' CLI command
 
-# Or install dependencies only (use python -m crawler.cli.main)
+# Option B: Install dependencies only (if you want to run without installing)
 pip install -r requirements.txt
+# Then use: python -m crawler.cli.main
+
+# Option C: Install with development tools (for contributors)
+pip install -e ".[dev]"
+# This installs everything including pytest, black, flake8, mypy, etc.
 ```
 
-After installation, you get a convenient `crawler` command!
+After installation with Option A or C, you get a convenient `crawler` command!
 
 ### 2. Set Up Configuration
 
