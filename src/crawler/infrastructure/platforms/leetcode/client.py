@@ -149,8 +149,8 @@ class LeetCodeClient(PlatformClient):
         that a user has solved (accepted submissions).
 
         NOTE: LeetCode's recentAcSubmissionList API has limitations and may not
-        return all solved problems. For a complete list, consider using the
-        problemsetQuestionList API with solved status filter.
+        return all solved problems. For a complete list, use fetch_all_problems_with_status()
+        which fetches all problems with their solve status.
 
         Args:
             username: The LeetCode username
@@ -230,7 +230,7 @@ class LeetCodeClient(PlatformClient):
                     self.logger.warning(
                         f"LeetCode API returned {len(submissions)} problems but user has {total_solved} "
                         f"total solved. The recentAcSubmissionList API is limited. "
-                        f"Use --limit to specify how many recent problems to fetch."
+                        f"Use fetch_all_problems_with_status() to get all problems with their status."
                     )
 
             # Apply user-specified limit if provided
@@ -257,6 +257,130 @@ class LeetCodeClient(PlatformClient):
 
         except Exception as e:
             self.logger.error(f"Failed to fetch solved problems for {username}: {e}")
+            raise
+
+    def fetch_all_problems_with_status(self, status_filter: str = None) -> List[Problem]:
+        """Fetch all LeetCode problems with their solve status.
+
+        Uses the LeetCode problemsetQuestionList GraphQL API to fetch all problems
+        along with their status (solved/attempted/not started). This is more comprehensive
+        than fetch_solved_problems() but slower as it fetches all problems.
+
+        Args:
+            status_filter: Optional filter for problem status:
+                          - "ac" or "SOLVED": Only solved problems
+                          - "notac" or "ATTEMPTED": Only attempted but not solved
+                          - None: All problems with their status
+
+        Returns:
+            List of Problem entities with their solve status
+
+        Raises:
+            NetworkException: If the network request fails
+            AuthenticationException: If authentication is required but not provided
+
+        Example:
+            >>> # Get all problems with status
+            >>> all_problems = client.fetch_all_problems_with_status()
+            >>> solved = [p for p in all_problems if hasattr(p, 'status') and p.status == 'ac']
+            >>> print(f"Solved {len(solved)} out of {len(all_problems)} problems")
+
+            >>> # Get only solved problems
+            >>> solved_problems = client.fetch_all_problems_with_status(status_filter="ac")
+            >>> print(f"Solved {len(solved_problems)} problems")
+        """
+        self.logger.info(
+            f"Fetching all problems with status"
+            + (f" (filter: {status_filter})" if status_filter else "")
+        )
+
+        # GraphQL query for fetching all problems with status
+        query = """
+        query problemsetQuestionList($categorySlug: String, $limit: Int, $skip: Int, $filters: QuestionListFilterInput) {
+            problemsetQuestionList: questionList(
+                categorySlug: $categorySlug
+                limit: $limit
+                skip: $skip
+                filters: $filters
+            ) {
+                total: totalNum
+                questions: data {
+                    acRate
+                    difficulty
+                    frontendQuestionId: questionFrontendId
+                    paidOnly: isPaidOnly
+                    status
+                    title
+                    titleSlug
+                    topicTags {
+                        name
+                        slug
+                    }
+                }
+            }
+        }
+        """
+
+        all_problems = []
+        skip = 0
+        limit = 100
+
+        try:
+            while True:
+                variables = {"categorySlug": "", "skip": skip, "limit": limit, "filters": {}}
+
+                response = self.http_client.post(
+                    url=self.config.leetcode_graphql_url,
+                    json={"query": query, "variables": variables},
+                    headers=self._get_headers(),
+                )
+
+                data = response.json()
+
+                # Check for GraphQL errors
+                if "errors" in data:
+                    error_msg = data["errors"][0]["message"]
+                    raise Exception(f"GraphQL error: {error_msg}")
+
+                question_list = data.get("data", {}).get("problemsetQuestionList", {})
+                questions = question_list.get("questions", [])
+                total = question_list.get("total", 0)
+
+                if not questions:
+                    break
+
+                # Apply status filter if specified
+                if status_filter:
+                    filter_lower = status_filter.lower()
+                    if filter_lower in ["ac", "solved"]:
+                        questions = [q for q in questions if q.get("status") == "ac"]
+                    elif filter_lower in ["notac", "attempted"]:
+                        questions = [q for q in questions if q.get("status") == "notac"]
+
+                # Convert to Problem entities
+                for question in questions:
+                    try:
+                        # Adapt the question data to Problem entity
+                        problem = self.adapter.adapt_problem_from_list(question)
+                        all_problems.append(problem)
+                    except Exception as e:
+                        self.logger.warning(
+                            f"Failed to adapt problem {question.get('titleSlug')}: {e}"
+                        )
+                        continue
+
+                skip += limit
+                self.logger.debug(f"Fetched {skip}/{total} problems")
+
+                # Stop if we've fetched all questions
+                if skip >= total:
+                    break
+
+            self.logger.info(f"Successfully fetched {len(all_problems)} problems with status")
+            return all_problems
+
+        except Exception as e:
+            self.logger.error(f"Failed to fetch all problems with status: {e}")
             raise
 
     def fetch_submission(self, problem_id: str, username: str) -> Submission:

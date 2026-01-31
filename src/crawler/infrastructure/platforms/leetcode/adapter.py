@@ -82,6 +82,44 @@ class LeetCodeAdapter:
             acceptance_rate=acceptance_rate,
         )
 
+    def adapt_problem_from_list(self, question_data: Dict[str, Any]) -> Problem:
+        """Convert LeetCode problemsetQuestionList response to Problem entity.
+
+        This is a lighter version of adapt_problem that works with the data
+        returned from the problemsetQuestionList API, which doesn't include
+        full problem details like description, examples, and constraints.
+
+        Args:
+            question_data: Question data from problemsetQuestionList API
+
+        Returns:
+            Problem entity with available fields populated
+
+        Example:
+            >>> question = {"titleSlug": "two-sum", "title": "Two Sum", ...}
+            >>> problem = adapter.adapt_problem_from_list(question)
+        """
+        # Parse acceptance rate (comes as percentage string like "49.1")
+        ac_rate = float(question_data.get("acRate", 0.0))
+
+        # Extract topic tags
+        topics = [tag["name"] for tag in question_data.get("topicTags", [])]
+
+        # Create a minimal Problem entity with available data
+        # Description, examples, constraints, and hints are not available in list view
+        return Problem(
+            id=question_data["titleSlug"],
+            platform="leetcode",
+            title=question_data["title"],
+            difficulty=Difficulty(question_data["difficulty"]),
+            description="",  # Not available in list view
+            topics=topics,
+            constraints=[],  # Not available in list view
+            examples=[],  # Not available in list view
+            hints=[],  # Not available in list view
+            acceptance_rate=ac_rate,
+        )
+
     def adapt_submission(self, raw_data: Dict[str, Any], problem_id: str = "unknown") -> Submission:
         """Convert LeetCode submission response to Submission entity.
 

@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## \[2.0.1\] - 2026-01-31
+
+### 🐛 Bug Fixes
+
+- **Added `fetch_all_problems_with_status()` method** - Implemented comprehensive problem fetching that retrieves ALL LeetCode problems with their solve status (solved/attempted/not started), matching v1 functionality
+- **Added `adapt_problem_from_list()` adapter method** - New adapter method to convert problemsetQuestionList API responses to Problem entities
+
+### ✨ Improvements
+
+- **Enhanced `fetch_solved_problems()` documentation** - Updated to reference the new `fetch_all_problems_with_status()` method for complete problem lists
+- **Better API coverage** - Now supports both the limited `recentAcSubmissionList` API (for recent submissions) and the comprehensive `problemsetQuestionList` API (for all problems with status)
+
+### 📝 Notes
+
+This patch addresses the limitation where v2 could only fetch recent solved problems (typically 20-100) while v1 could fetch all problems with their status. The new `fetch_all_problems_with_status()` method provides:
+
+- Complete list of all LeetCode problems
+- Solve status for each problem (ac/notac/null)
+- Optional filtering by status
+- Pagination support for large result sets
+
 ## [2.0.0] - 2026-01-31
 
 ### 🎉 Initial Production Release
