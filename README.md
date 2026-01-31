@@ -229,16 +229,24 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed technical documentation.
 
 ### Setup Development Environment
 
+**Automated setup (recommended):**
+
 ```bash
-# Automated setup (recommended)
+# Linux/macOS
 ./scripts/setup-dev.sh
 
-# This script will:
-# 1. Install the package in development mode
-# 2. Install all dev dependencies
-# 3. Set up git hooks (pre-commit, pre-push, commit-msg)
-# 4. Run initial code quality checks
+# Windows PowerShell
+.\scripts\setup-dev.ps1
+
+# Windows Command Prompt
+scripts\setup-dev.bat
 ```
+
+These scripts will:
+1. Install the package in development mode
+2. Install all dev dependencies
+3. Set up git hooks (pre-commit, pre-push, commit-msg)
+4. Run initial code quality checks
 
 **Manual setup:**
 

@@ -15,8 +15,14 @@ cd coding-platform-crawler
 ### 2. Set Up Development Environment
 
 ```bash
-# Run the automated setup script
+# Linux/macOS
 ./scripts/setup-dev.sh
+
+# Windows PowerShell
+.\scripts\setup-dev.ps1
+
+# Windows Command Prompt
+scripts\setup-dev.bat
 
 # Or follow manual setup in README.md
 ```

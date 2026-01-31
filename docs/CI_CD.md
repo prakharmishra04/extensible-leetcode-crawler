@@ -84,13 +84,27 @@ test: add unit tests for problem entity
 
 ### Setup Instructions
 
+**Automated setup (recommended):**
+
 ```bash
-# Automated setup (recommended)
+# Linux/macOS
 ./scripts/setup-dev.sh
 
-# Manual setup
+# Windows PowerShell
+.\scripts\setup-dev.ps1
+
+# Windows Command Prompt
+scripts\setup-dev.bat
+```
+
+**Manual setup:**
+
+```bash
+# Install package and dependencies
 pip install -e ".[dev]"
 pip install pre-commit
+
+# Install git hooks
 pre-commit install
 pre-commit install --hook-type pre-push
 pre-commit install --hook-type commit-msg
