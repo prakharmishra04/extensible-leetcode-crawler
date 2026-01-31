@@ -129,7 +129,24 @@ class HTTPClient:
                 response = self.session.request(method, url, **kwargs)
 
                 # Check for HTTP errors
-                # Don't retry on 4xx errors (client errors) - raise immediately
+                # Special handling for 429 (Too Many Requests) and 403 (Forbidden - often rate limiting)
+                if response.status_code in [429, 403]:
+                    if attempt < self.retry_config.max_retries - 1:
+                        # Use longer delay for rate limiting
+                        delay = (
+                            self._calculate_delay(attempt) * 2
+                        )  # Double the delay for rate limits
+                        self.logger.warning(
+                            f"Rate limit hit ({response.status_code}), "
+                            f"retrying in {delay:.2f} seconds..."
+                        )
+                        time.sleep(delay)
+                        continue
+                    else:
+                        # Last attempt, raise the error
+                        response.raise_for_status()
+
+                # Don't retry on other 4xx errors (client errors) - raise immediately
                 if 400 <= response.status_code < 500:
                     # Log response body for debugging
                     try:

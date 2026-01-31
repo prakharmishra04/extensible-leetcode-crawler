@@ -348,6 +348,9 @@ class BatchDownloadUseCase:
             )
             submission = self.client.fetch_submission(problem.id, options.username)
             self.logger.debug(f"Successfully fetched submission for '{problem.id}'")
+            # Add extra delay after submission fetch to avoid rate limiting
+            # LeetCode's submission API is more aggressive with rate limits
+            time.sleep(1.0)
         except Exception as e:
             self.logger.warning(
                 f"Failed to fetch submission for problem '{problem.id}': {e}. "
