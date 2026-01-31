@@ -1,0 +1,26 @@
+# LeetCode Crawler Configuration Template
+# Copy this file to my-config.yaml and add your credentials
+
+# LeetCode credentials
+# Get these from your browser cookies after logging into LeetCode
+leetcode_session_token: "your_session_token_here"
+leetcode_csrf_token: "your_csrf_token_here"
+leetcode_username: "your_username_here"
+
+# Output configuration
+output_dir: "./problems"
+default_format: "python"  # Options: python, markdown, json
+
+# Rate limiting (requests per second)
+requests_per_second: 2.0
+
+# Retry configuration
+max_retries: 3
+initial_delay: 1.0
+max_delay: 60.0
+exponential_base: 2.0
+jitter: true
+
+# Logging
+log_level: "INFO"  # Options: DEBUG, INFO, WARNING, ERROR
+log_file: "./logs/crawler.log"

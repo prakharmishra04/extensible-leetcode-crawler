@@ -4,7 +4,9 @@ This module provides sample Problem entities for use in tests.
 Covers common scenarios and edge cases as per Requirements 1.5.
 """
 from typing import List
+
 from src.crawler.domain.entities.problem import Problem
+from src.crawler.domain.value_objects.constraint import Constraint
 from src.crawler.domain.value_objects.difficulty import Difficulty
 from src.crawler.domain.value_objects.example import Example
 
@@ -24,34 +26,34 @@ def create_easy_problem() -> Problem:
             "You can return the answer in any order."
         ),
         topics=["Array", "Hash Table"],
-        constraints=(
-            "2 <= nums.length <= 10^4\n"
-            "-10^9 <= nums[i] <= 10^9\n"
-            "-10^9 <= target <= 10^9\n"
-            "Only one valid answer exists."
-        ),
+        constraints=[
+            Constraint(text="2 <= nums.length <= 10^4"),
+            Constraint(text="-10^9 <= nums[i] <= 10^9"),
+            Constraint(text="-10^9 <= target <= 10^9"),
+            Constraint(text="Only one valid answer exists."),
+        ],
         examples=[
             Example(
-                input='nums = [2,7,11,15], target = 9',
-                output='[0,1]',
-                explanation='Because nums[0] + nums[1] == 9, we return [0, 1].'
+                input="nums = [2,7,11,15], target = 9",
+                output="[0,1]",
+                explanation="Because nums[0] + nums[1] == 9, we return [0, 1].",
             ),
             Example(
-                input='nums = [3,2,4], target = 6',
-                output='[1,2]',
-                explanation='Because nums[1] + nums[2] == 6, we return [1, 2].'
+                input="nums = [3,2,4], target = 6",
+                output="[1,2]",
+                explanation="Because nums[1] + nums[2] == 6, we return [1, 2].",
             ),
             Example(
-                input='nums = [3,3], target = 6',
-                output='[0,1]',
-                explanation='Because nums[0] + nums[1] == 6, we return [0, 1].'
-            )
+                input="nums = [3,3], target = 6",
+                output="[0,1]",
+                explanation="Because nums[0] + nums[1] == 6, we return [0, 1].",
+            ),
         ],
         hints=[
             "A really brute force way would be to search for all possible pairs of numbers but that would be too slow.",
-            "Use a hash map to store the complement of each number as you iterate through the array."
+            "Use a hash map to store the complement of each number as you iterate through the array.",
         ],
-        acceptance_rate=49.1
+        acceptance_rate=49.1,
     )
 
 
@@ -69,33 +71,29 @@ def create_medium_problem() -> Problem:
             "You may assume the two numbers do not contain any leading zero, except the number 0 itself."
         ),
         topics=["Linked List", "Math", "Recursion"],
-        constraints=(
-            "The number of nodes in each linked list is in the range [1, 100].\n"
-            "0 <= Node.val <= 9\n"
-            "It is guaranteed that the list represents a number that does not have leading zeros."
-        ),
+        constraints=[
+            Constraint(text="The number of nodes in each linked list is in the range [1, 100]."),
+            Constraint(text="0 <= Node.val <= 9"),
+            Constraint(
+                text="It is guaranteed that the list represents a number that does not have leading zeros."
+            ),
+        ],
         examples=[
             Example(
-                input='l1 = [2,4,3], l2 = [5,6,4]',
-                output='[7,0,8]',
-                explanation='342 + 465 = 807.'
+                input="l1 = [2,4,3], l2 = [5,6,4]", output="[7,0,8]", explanation="342 + 465 = 807."
             ),
+            Example(input="l1 = [0], l2 = [0]", output="[0]", explanation="0 + 0 = 0."),
             Example(
-                input='l1 = [0], l2 = [0]',
-                output='[0]',
-                explanation='0 + 0 = 0.'
+                input="l1 = [9,9,9,9,9,9,9], l2 = [9,9,9,9]",
+                output="[8,9,9,9,0,0,0,1]",
+                explanation="9999999 + 9999 = 10009998.",
             ),
-            Example(
-                input='l1 = [9,9,9,9,9,9,9], l2 = [9,9,9,9]',
-                output='[8,9,9,9,0,0,0,1]',
-                explanation='9999999 + 9999 = 10009998.'
-            )
         ],
         hints=[
             "Think about how you would add two numbers on paper.",
-            "Don't forget to handle the carry when the sum is greater than 9."
+            "Don't forget to handle the carry when the sum is greater than 9.",
         ],
-        acceptance_rate=41.2
+        acceptance_rate=41.2,
     )
 
 
@@ -112,31 +110,31 @@ def create_hard_problem() -> Problem:
             "The overall run time complexity should be O(log (m+n))."
         ),
         topics=["Array", "Binary Search", "Divide and Conquer"],
-        constraints=(
-            "nums1.length == m\n"
-            "nums2.length == n\n"
-            "0 <= m <= 1000\n"
-            "0 <= n <= 1000\n"
-            "1 <= m + n <= 2000\n"
-            "-10^6 <= nums1[i], nums2[i] <= 10^6"
-        ),
+        constraints=[
+            Constraint(text="nums1.length == m"),
+            Constraint(text="nums2.length == n"),
+            Constraint(text="0 <= m <= 1000"),
+            Constraint(text="0 <= n <= 1000"),
+            Constraint(text="1 <= m + n <= 2000"),
+            Constraint(text="-10^6 <= nums1[i], nums2[i] <= 10^6"),
+        ],
         examples=[
             Example(
-                input='nums1 = [1,3], nums2 = [2]',
-                output='2.00000',
-                explanation='merged array = [1,2,3] and median is 2.'
+                input="nums1 = [1,3], nums2 = [2]",
+                output="2.00000",
+                explanation="merged array = [1,2,3] and median is 2.",
             ),
             Example(
-                input='nums1 = [1,2], nums2 = [3,4]',
-                output='2.50000',
-                explanation='merged array = [1,2,3,4] and median is (2 + 3) / 2 = 2.5.'
-            )
+                input="nums1 = [1,2], nums2 = [3,4]",
+                output="2.50000",
+                explanation="merged array = [1,2,3,4] and median is (2 + 3) / 2 = 2.5.",
+            ),
         ],
         hints=[
             "Use binary search to partition the arrays.",
-            "The key is to find the correct partition point."
+            "The key is to find the correct partition point.",
         ],
-        acceptance_rate=37.8
+        acceptance_rate=37.8,
     )
 
 
@@ -153,26 +151,14 @@ def create_problem_with_no_hints() -> Problem:
             "[-2^31, 2^31 - 1], then return 0."
         ),
         topics=["Math"],
-        constraints="-2^31 <= x <= 2^31 - 1",
+        constraints=[Constraint(text="-2^31 <= x <= 2^31 - 1")],
         examples=[
-            Example(
-                input='x = 123',
-                output='321',
-                explanation=None
-            ),
-            Example(
-                input='x = -123',
-                output='-321',
-                explanation=None
-            ),
-            Example(
-                input='x = 120',
-                output='21',
-                explanation=None
-            )
+            Example(input="x = 123", output="321", explanation=None),
+            Example(input="x = -123", output="-321", explanation=None),
+            Example(input="x = 120", output="21", explanation=None),
         ],
         hints=[],  # No hints
-        acceptance_rate=27.5
+        acceptance_rate=27.5,
     )
 
 
@@ -185,16 +171,10 @@ def create_problem_with_minimal_data() -> Problem:
         difficulty=Difficulty("Easy"),
         description="A minimal problem description.",
         topics=["Array"],
-        constraints="",  # Empty constraints
-        examples=[
-            Example(
-                input='[1,2,3]',
-                output='6',
-                explanation=None
-            )
-        ],
+        constraints=[],  # Empty constraints
+        examples=[Example(input="[1,2,3]", output="6", explanation=None)],
         hints=[],
-        acceptance_rate=50.0
+        acceptance_rate=50.0,
     )
 
 
@@ -216,18 +196,12 @@ def create_problem_with_many_topics() -> Problem:
             "Binary Search",
             "Divide and Conquer",
             "Dynamic Programming",
-            "Backtracking"
+            "Backtracking",
         ],
-        constraints="Complex constraints here.",
-        examples=[
-            Example(
-                input='input1',
-                output='output1',
-                explanation='explanation1'
-            )
-        ],
+        constraints=[Constraint(text="Complex constraints here.")],
+        examples=[Example(input="input1", output="output1", explanation="explanation1")],
         hints=["Hint 1", "Hint 2", "Hint 3", "Hint 4", "Hint 5"],
-        acceptance_rate=15.3
+        acceptance_rate=15.3,
     )
 
 
@@ -243,19 +217,16 @@ def create_hackerrank_problem() -> Problem:
             "For example, if the array ar = [1,2,3], 1+2+3 = 6, so return 6."
         ),
         topics=["Array", "Math"],
-        constraints=(
-            "0 < n <= 1000\n"
-            "0 < ar[i] <= 1000"
-        ),
+        constraints=[Constraint(text="0 < n <= 1000"), Constraint(text="0 < ar[i] <= 1000")],
         examples=[
             Example(
-                input='6\n1 2 3 4 10 11',
-                output='31',
-                explanation='We print the sum of the array\'s elements: 1+2+3+4+10+11 = 31.'
+                input="6\n1 2 3 4 10 11",
+                output="31",
+                explanation="We print the sum of the array's elements: 1+2+3+4+10+11 = 31.",
             )
         ],
         hints=[],
-        acceptance_rate=95.2
+        acceptance_rate=95.2,
     )
 
 
@@ -273,16 +244,16 @@ def create_codechef_problem() -> Problem:
             "of one or two digits."
         ),
         topics=["Basic Programming"],
-        constraints="1 <= input <= 99",
+        constraints=[Constraint(text="1 <= input <= 99")],
         examples=[
             Example(
-                input='1\n2\n88\n42\n99',
-                output='1\n2\n88',
-                explanation='Stop at 42 and don\'t print it or anything after.'
+                input="1\n2\n88\n42\n99",
+                output="1\n2\n88",
+                explanation="Stop at 42 and don't print it or anything after.",
             )
         ],
         hints=[],
-        acceptance_rate=87.6
+        acceptance_rate=87.6,
     )
 
 
@@ -296,7 +267,7 @@ def create_problems_list() -> List[Problem]:
         create_problem_with_minimal_data(),
         create_problem_with_many_topics(),
         create_hackerrank_problem(),
-        create_codechef_problem()
+        create_codechef_problem(),
     ]
 
 
@@ -315,26 +286,18 @@ def create_problem_with_high_acceptance() -> Problem:
             "- answer[i] == i (as a string) if none of the above conditions are true."
         ),
         topics=["Math", "String", "Simulation"],
-        constraints="1 <= n <= 10^4",
+        constraints=[Constraint(text="1 <= n <= 10^4")],
         examples=[
+            Example(input="n = 3", output='["1","2","Fizz"]', explanation=None),
+            Example(input="n = 5", output='["1","2","Fizz","4","Buzz"]', explanation=None),
             Example(
-                input='n = 3',
-                output='["1","2","Fizz"]',
-                explanation=None
-            ),
-            Example(
-                input='n = 5',
-                output='["1","2","Fizz","4","Buzz"]',
-                explanation=None
-            ),
-            Example(
-                input='n = 15',
+                input="n = 15",
                 output='["1","2","Fizz","4","Buzz","Fizz","7","8","Fizz","Buzz","11","Fizz","13","14","FizzBuzz"]',
-                explanation=None
-            )
+                explanation=None,
+            ),
         ],
         hints=[],
-        acceptance_rate=98.7
+        acceptance_rate=98.7,
     )
 
 
@@ -353,32 +316,29 @@ def create_problem_with_low_acceptance() -> Problem:
             "The matching should cover the entire input string (not partial)."
         ),
         topics=["String", "Dynamic Programming", "Recursion"],
-        constraints=(
-            "1 <= s.length <= 20\n"
-            "1 <= p.length <= 20\n"
-            "s contains only lowercase English letters.\n"
-            "p contains only lowercase English letters, '.', and '*'."
-        ),
+        constraints=[
+            Constraint(text="1 <= s.length <= 20"),
+            Constraint(text="1 <= p.length <= 20"),
+            Constraint(text="s contains only lowercase English letters."),
+            Constraint(text="p contains only lowercase English letters, '.', and '*'."),
+        ],
         examples=[
             Example(
                 input='s = "aa", p = "a"',
-                output='false',
-                explanation='"a" does not match the entire string "aa".'
+                output="false",
+                explanation='"a" does not match the entire string "aa".',
             ),
             Example(
                 input='s = "aa", p = "a*"',
-                output='true',
-                explanation='"*" means zero or more of the preceding element, "a".'
+                output="true",
+                explanation='"*" means zero or more of the preceding element, "a".',
             ),
             Example(
                 input='s = "ab", p = ".*"',
-                output='true',
-                explanation='".*" means "zero or more (*) of any character (.)".'
-            )
+                output="true",
+                explanation='".*" means "zero or more (*) of any character (.)".',
+            ),
         ],
-        hints=[
-            "Use dynamic programming.",
-            "Consider the base cases carefully."
-        ],
-        acceptance_rate=12.4
+        hints=["Use dynamic programming.", "Consider the base cases carefully."],
+        acceptance_rate=12.4,
     )

@@ -59,6 +59,28 @@ leetcode_data/
 *.json.bak
 *.json.tmp
 
+# Output artifacts (downloaded problems)
+problems/
+
+# v1 script outputs
+v1-scripts/*.py
+!v1-scripts/leetcode_crawler.py
+!v1-scripts/fetch_solved_problems.py
+!v1-scripts/batch_download_solutions.py
+v1-scripts/LeetCode/
+v1-scripts/*.json
+v1-scripts/*.txt
+v1-scripts/*.md
+!v1-scripts/README.md
+!v1-scripts/EXAMPLES.md
+!v1-scripts/requirements.txt
+
+# Configuration files with credentials (DO NOT COMMIT)
+config.yaml
+config.json
+my-config.yaml
+.env
+
 # Temporary files
 *.tmp
 *.temp

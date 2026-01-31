@@ -9,15 +9,15 @@ This module tests the BatchDownloadCommand implementation, including:
 - Statistics reporting
 """
 
-import pytest
-from unittest.mock import Mock
 from logging import Logger
+from unittest.mock import Mock
 
-from crawler.cli.commands.batch import BatchDownloadCommand
-from crawler.cli.commands.base import CommandResult
+import pytest
+
 from crawler.application.use_cases.batch_download import DownloadStats
+from crawler.cli.commands.base import CommandResult
+from crawler.cli.commands.batch import BatchDownloadCommand
 from crawler.domain.entities import Problem, UpdateMode
-from crawler.domain.value_objects import Difficulty, Example
 from crawler.domain.exceptions import (
     AuthenticationException,
     NetworkException,
@@ -25,6 +25,7 @@ from crawler.domain.exceptions import (
     RepositoryException,
     UnsupportedPlatformException,
 )
+from crawler.domain.value_objects import Difficulty, Example
 
 
 @pytest.fixture
@@ -102,13 +103,17 @@ def sample_problems():
     ]
 
 
-
 class TestBatchDownloadCommandSuccess:
     """Test successful batch download scenarios."""
-    
+
     def test_execute_success_all_downloaded(
-        self, mock_client, mock_repository, mock_formatter, mock_observers, 
-        mock_logger, sample_problems
+        self,
+        mock_client,
+        mock_repository,
+        mock_formatter,
+        mock_observers,
+        mock_logger,
+        sample_problems,
     ):
         """Test successful batch download with all problems downloaded."""
         # Arrange
@@ -116,13 +121,14 @@ class TestBatchDownloadCommandSuccess:
         mock_client.fetch_problem.side_effect = sample_problems
         mock_client.fetch_submission.return_value = Mock()
         mock_repository.exists.return_value = False
-        
+
         command = BatchDownloadCommand(
             username="john_doe",
             platform="leetcode",
             update_mode=UpdateMode.SKIP,
             difficulty_filter=None,
             topic_filter=None,
+            limit=None,
             include_community=False,
             output_format="python",
             client=mock_client,
@@ -131,10 +137,10 @@ class TestBatchDownloadCommandSuccess:
             observers=mock_observers,
             logger=mock_logger,
         )
-        
+
         # Act
         result = command.execute()
-        
+
         # Assert
         assert result.success is True
         assert "Successfully downloaded 3 problem(s)" in result.message
@@ -145,10 +151,14 @@ class TestBatchDownloadCommandSuccess:
         assert result.data.failed == 0
         assert result.error is None
 
-    
     def test_execute_success_with_skipped(
-        self, mock_client, mock_repository, mock_formatter, mock_observers,
-        mock_logger, sample_problems
+        self,
+        mock_client,
+        mock_repository,
+        mock_formatter,
+        mock_observers,
+        mock_logger,
+        sample_problems,
     ):
         """Test batch download with some problems skipped."""
         # Arrange
@@ -157,13 +167,14 @@ class TestBatchDownloadCommandSuccess:
         mock_client.fetch_submission.return_value = Mock()
         # First problem exists, others don't
         mock_repository.exists.side_effect = [True, False, False]
-        
+
         command = BatchDownloadCommand(
             username="john_doe",
             platform="leetcode",
             update_mode=UpdateMode.SKIP,
             difficulty_filter=None,
             topic_filter=None,
+            limit=None,
             include_community=False,
             output_format="python",
             client=mock_client,
@@ -172,10 +183,10 @@ class TestBatchDownloadCommandSuccess:
             observers=mock_observers,
             logger=mock_logger,
         )
-        
+
         # Act
         result = command.execute()
-        
+
         # Assert
         assert result.success is True
         assert "2 problem(s)" in result.message
@@ -186,10 +197,14 @@ class TestBatchDownloadCommandSuccess:
         assert result.data.skipped == 1
         assert result.data.failed == 0
 
-    
     def test_execute_success_with_difficulty_filter(
-        self, mock_client, mock_repository, mock_formatter, mock_observers,
-        mock_logger, sample_problems
+        self,
+        mock_client,
+        mock_repository,
+        mock_formatter,
+        mock_observers,
+        mock_logger,
+        sample_problems,
     ):
         """Test batch download with difficulty filter."""
         # Arrange
@@ -199,13 +214,14 @@ class TestBatchDownloadCommandSuccess:
         mock_client.fetch_problem.side_effect = easy_medium
         mock_client.fetch_submission.return_value = Mock()
         mock_repository.exists.return_value = False
-        
+
         command = BatchDownloadCommand(
             username="john_doe",
             platform="leetcode",
             update_mode=UpdateMode.SKIP,
             difficulty_filter=["Easy", "Medium"],
             topic_filter=None,
+            limit=None,
             include_community=False,
             output_format="python",
             client=mock_client,
@@ -214,20 +230,24 @@ class TestBatchDownloadCommandSuccess:
             observers=mock_observers,
             logger=mock_logger,
         )
-        
+
         # Act
         result = command.execute()
-        
+
         # Assert
         assert result.success is True
         assert isinstance(result.data, DownloadStats)
         assert result.data.total == 2  # Only Easy and Medium
         assert result.data.downloaded == 2
 
-    
     def test_execute_success_with_topic_filter(
-        self, mock_client, mock_repository, mock_formatter, mock_observers,
-        mock_logger, sample_problems
+        self,
+        mock_client,
+        mock_repository,
+        mock_formatter,
+        mock_observers,
+        mock_logger,
+        sample_problems,
     ):
         """Test batch download with topic filter."""
         # Arrange
@@ -237,13 +257,14 @@ class TestBatchDownloadCommandSuccess:
         mock_client.fetch_problem.side_effect = array_problems
         mock_client.fetch_submission.return_value = Mock()
         mock_repository.exists.return_value = False
-        
+
         command = BatchDownloadCommand(
             username="john_doe",
             platform="leetcode",
             update_mode=UpdateMode.SKIP,
             difficulty_filter=None,
             topic_filter=["Array"],
+            limit=None,
             include_community=False,
             output_format="python",
             client=mock_client,
@@ -252,10 +273,10 @@ class TestBatchDownloadCommandSuccess:
             observers=mock_observers,
             logger=mock_logger,
         )
-        
+
         # Act
         result = command.execute()
-        
+
         # Assert
         assert result.success is True
         assert isinstance(result.data, DownloadStats)
@@ -263,10 +284,9 @@ class TestBatchDownloadCommandSuccess:
         assert result.data.downloaded == 2
 
 
-
 class TestBatchDownloadCommandErrors:
     """Test error handling scenarios."""
-    
+
     def test_execute_user_not_found(
         self, mock_client, mock_repository, mock_formatter, mock_observers, mock_logger
     ):
@@ -275,13 +295,14 @@ class TestBatchDownloadCommandErrors:
         mock_client.fetch_solved_problems.side_effect = ProblemNotFoundException(
             "nonexistent_user", "leetcode"
         )
-        
+
         command = BatchDownloadCommand(
             username="nonexistent_user",
             platform="leetcode",
             update_mode=UpdateMode.SKIP,
             difficulty_filter=None,
             topic_filter=None,
+            limit=None,
             include_community=False,
             output_format="python",
             client=mock_client,
@@ -290,17 +311,16 @@ class TestBatchDownloadCommandErrors:
             observers=mock_observers,
             logger=mock_logger,
         )
-        
+
         # Act
         result = command.execute()
-        
+
         # Assert
         assert result.success is False
         assert "not found" in result.message
         assert "nonexistent_user" in result.message
         assert isinstance(result.error, ProblemNotFoundException)
 
-    
     def test_execute_authentication_error(
         self, mock_client, mock_repository, mock_formatter, mock_observers, mock_logger
     ):
@@ -309,13 +329,14 @@ class TestBatchDownloadCommandErrors:
         mock_client.fetch_solved_problems.side_effect = AuthenticationException(
             "leetcode", "Invalid session token"
         )
-        
+
         command = BatchDownloadCommand(
             username="john_doe",
             platform="leetcode",
             update_mode=UpdateMode.SKIP,
             difficulty_filter=None,
             topic_filter=None,
+            limit=None,
             include_community=False,
             output_format="python",
             client=mock_client,
@@ -324,16 +345,16 @@ class TestBatchDownloadCommandErrors:
             observers=mock_observers,
             logger=mock_logger,
         )
-        
+
         # Act
         result = command.execute()
-        
+
         # Assert
         assert result.success is False
         assert "Authentication failed" in result.message
         assert "credentials" in result.message
         assert isinstance(result.error, AuthenticationException)
-    
+
     def test_execute_network_error(
         self, mock_client, mock_repository, mock_formatter, mock_observers, mock_logger
     ):
@@ -342,13 +363,14 @@ class TestBatchDownloadCommandErrors:
         mock_client.fetch_solved_problems.side_effect = NetworkException(
             "Connection timeout", url="https://leetcode.com/api", status_code=504
         )
-        
+
         command = BatchDownloadCommand(
             username="john_doe",
             platform="leetcode",
             update_mode=UpdateMode.SKIP,
             difficulty_filter=None,
             topic_filter=None,
+            limit=None,
             include_community=False,
             output_format="python",
             client=mock_client,
@@ -357,10 +379,10 @@ class TestBatchDownloadCommandErrors:
             observers=mock_observers,
             logger=mock_logger,
         )
-        
+
         # Act
         result = command.execute()
-        
+
         # Assert
         assert result.success is False
         assert "Network error" in result.message
@@ -368,10 +390,9 @@ class TestBatchDownloadCommandErrors:
         assert isinstance(result.error, NetworkException)
 
 
-
 class TestBatchDownloadCommandValidation:
     """Test input validation."""
-    
+
     def test_validate_empty_username(
         self, mock_client, mock_repository, mock_formatter, mock_observers, mock_logger
     ):
@@ -383,6 +404,7 @@ class TestBatchDownloadCommandValidation:
             update_mode=UpdateMode.SKIP,
             difficulty_filter=None,
             topic_filter=None,
+            limit=None,
             include_community=False,
             output_format="python",
             client=mock_client,
@@ -391,15 +413,15 @@ class TestBatchDownloadCommandValidation:
             observers=mock_observers,
             logger=mock_logger,
         )
-        
+
         # Act
         result = command.execute()
-        
+
         # Assert
         assert result.success is False
         assert "cannot be empty" in result.message.lower()
         assert isinstance(result.error, ValueError)
-    
+
     def test_validate_invalid_difficulty(
         self, mock_client, mock_repository, mock_formatter, mock_observers, mock_logger
     ):
@@ -411,6 +433,7 @@ class TestBatchDownloadCommandValidation:
             update_mode=UpdateMode.SKIP,
             difficulty_filter=["Invalid"],
             topic_filter=None,
+            limit=None,
             include_community=False,
             output_format="python",
             client=mock_client,
@@ -419,96 +442,111 @@ class TestBatchDownloadCommandValidation:
             observers=mock_observers,
             logger=mock_logger,
         )
-        
+
         # Act
         result = command.execute()
-        
+
         # Assert
         assert result.success is False
         assert "Invalid difficulty" in result.message
         assert isinstance(result.error, ValueError)
 
 
-
 class TestBatchDownloadCommandArgumentParser:
     """Test argument parser configuration."""
-    
+
     def test_create_argument_parser(self):
         """Test that argument parser is created correctly."""
         # Act
         parser = BatchDownloadCommand.create_argument_parser()
-        
+
         # Assert
         assert parser is not None
         assert parser.description is not None
-    
+
     def test_parse_required_arguments(self):
         """Test parsing of required arguments."""
         # Arrange
         parser = BatchDownloadCommand.create_argument_parser()
-        
+
         # Act
-        args = parser.parse_args([
-            "john_doe",
-            "--platform", "leetcode",
-            "--mode", "skip"
-        ])
-        
+        args = parser.parse_args(["john_doe", "--platform", "leetcode", "--mode", "skip"])
+
         # Assert
         assert args.username == "john_doe"
         assert args.platform == "leetcode"
         assert args.mode == "skip"
         assert args.format == "python"
         assert args.include_community is False
-    
+
     def test_parse_with_difficulty_filter(self):
         """Test parsing with difficulty filter."""
         # Arrange
         parser = BatchDownloadCommand.create_argument_parser()
-        
+
         # Act
-        args = parser.parse_args([
-            "john_doe",
-            "--platform", "leetcode",
-            "--mode", "update",
-            "--difficulty", "Easy", "Medium"
-        ])
-        
+        args = parser.parse_args(
+            [
+                "john_doe",
+                "--platform",
+                "leetcode",
+                "--mode",
+                "update",
+                "--difficulty",
+                "Easy",
+                "Medium",
+            ]
+        )
+
         # Assert
         assert args.difficulty == ["Easy", "Medium"]
-    
+
     def test_parse_with_topic_filter(self):
         """Test parsing with topic filter."""
         # Arrange
         parser = BatchDownloadCommand.create_argument_parser()
-        
+
         # Act
-        args = parser.parse_args([
-            "john_doe",
-            "--platform", "leetcode",
-            "--mode", "force",
-            "--topics", "Array", "Hash Table"
-        ])
-        
+        args = parser.parse_args(
+            [
+                "john_doe",
+                "--platform",
+                "leetcode",
+                "--mode",
+                "force",
+                "--topics",
+                "Array",
+                "Hash Table",
+            ]
+        )
+
         # Assert
         assert args.topics == ["Array", "Hash Table"]
-    
+
     def test_parse_all_arguments(self):
         """Test parsing of all arguments."""
         # Arrange
         parser = BatchDownloadCommand.create_argument_parser()
-        
+
         # Act
-        args = parser.parse_args([
-            "john_doe",
-            "--platform", "leetcode",
-            "--mode", "update",
-            "--difficulty", "Easy", "Medium",
-            "--topics", "Array",
-            "--include-community",
-            "--format", "markdown"
-        ])
-        
+        args = parser.parse_args(
+            [
+                "john_doe",
+                "--platform",
+                "leetcode",
+                "--mode",
+                "update",
+                "--difficulty",
+                "Easy",
+                "Medium",
+                "--topics",
+                "Array",
+                "--include-community",
+                "--format",
+                "markdown",
+            ]
+        )
+
         # Assert
         assert args.username == "john_doe"
         assert args.platform == "leetcode"

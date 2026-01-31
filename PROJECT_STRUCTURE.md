@@ -1,251 +1,293 @@
-# LeetCode Crawler Project Structure
+# Project Structure Overview
 
-## 📁 Directory Layout
+This document provides a high-level overview of the entire project structure, including both v1 and v2.
+
+## Project Versions
+
+### v2 (Main) - Clean Architecture
+
+The primary version with extensible architecture, comprehensive testing, and production-ready code.
+
+**Location**: Root directory (`src/`, `tests/`)
+
+**Key Features**:
+
+- Clean architecture with layered design
+- 73% test coverage
+- Multiple output formats (Python, JSON, Markdown)
+- Extensible to multiple platforms
+- Advanced error handling and retry logic
+
+### v1 - Simple Scripts
+
+Lightweight script-based version for quick downloads and simple use cases.
+
+**Location**: `v1-scripts/`
+
+**Key Features**:
+
+- Standalone Python scripts
+- Minimal dependencies (2 packages)
+- Quick setup (60 seconds)
+- Hardcoded for LeetCode
+- Perfect for personal use
+
+## Directory Structure
 
 ```
-Leet code/
-├── Crawler/                          # Main crawler toolkit
-│   ├── leetcode_crawler.py           # Individual problem crawler
-│   ├── fetch_solved_problems.py      # List solved problems
-│   ├── batch_download_solutions.py   # Batch download all solutions (NEW!)
-│   ├── requirements.txt              # Python dependencies
-│   ├── README.md                     # Full documentation
-│   ├── QUICK_START.md                # Quick start guide (NEW!)
-│   ├── PROJECT_STRUCTURE.md          # This file (NEW!)
-│   └── utils/                        # Reusable modules
-│       ├── __init__.py
-│       ├── leetcode_client.py        # LeetCode API client
-│       └── formatters.py             # Text formatting utilities
+Crawler/
+├── README.md                    # Main project documentation
+├── ARCHITECTURE.md              # v2 technical architecture
+├── DEVELOPMENT.md               # v2 development guide
+├── PROJECT_STRUCTURE.md         # This file
 │
-├── To-Revise/                        # Downloaded solutions (NEW!)
-│   ├── two-sum.py
-│   ├── add-two-numbers.py
-│   └── ... (all your solved problems)
+├── v1-scripts/                  # v1 Simple Scripts
+│   ├── README.md               # v1 full documentation
+│   ├── QUICKSTART.md           # 60-second setup guide
+│   ├── EXAMPLES.md             # Detailed usage examples
+│   ├── COMPARISON.md           # v1 vs v2 comparison
+│   ├── MIGRATION.md            # v1 to v2 upgrade guide
+│   ├── requirements.txt        # v1 dependencies (2 packages)
+│   │
+│   ├── leetcode_crawler.py     # Single problem download
+│   ├── fetch_solved_problems.py # List solved problems
+│   ├── batch_download_solutions.py # Batch download
+│   │
+│   └── utils/                  # v1 utility modules
+│       ├── leetcode_client.py  # LeetCode API client
+│       └── formatters.py       # Text formatting utilities
 │
-└── leetcode_data/                    # Optional JSON exports
-    └── *.json
+├── src/crawler/                 # v2 Source Code
+│   ├── domain/                 # Business entities
+│   │   ├── entities/          # Problem, Submission, User
+│   │   └── value_objects/     # Difficulty, Example, Constraint
+│   │
+│   ├── application/            # Use cases
+│   │   ├── interfaces/        # Abstract interfaces
+│   │   └── use_cases/         # Business logic
+│   │
+│   ├── infrastructure/         # External systems
+│   │   ├── platforms/         # Platform clients (LeetCode, etc.)
+│   │   ├── repositories/      # Data persistence
+│   │   ├── formatters/        # Output formatters
+│   │   └── http/              # HTTP client with retry/rate limiting
+│   │
+│   ├── cli/                    # Command-line interface
+│   │   ├── commands/          # CLI command handlers
+│   │   └── observers/         # Progress tracking
+│   │
+│   └── config/                 # Configuration management
+│       ├── settings.py        # Config loading
+│       └── logging_config.py  # Logging setup
+│
+├── tests/                       # v2 Test Suite
+│   ├── unit/                   # Unit tests (fast, isolated)
+│   │   ├── domain/            # Entity and value object tests
+│   │   ├── application/       # Use case tests
+│   │   └── infrastructure/    # Adapter and formatter tests
+│   │
+│   ├── integration/            # Integration tests (mocked HTTP)
+│   │   └── platforms/         # Platform client tests
+│   │
+│   └── fixtures/               # Shared test data
+│       ├── api_responses.py   # Mock API responses
+│       └── problems.py        # Test problem entities
+│
+├── config.example.yaml          # Example configuration file
+├── requirements.txt             # v2 dependencies
+├── pyproject.toml              # Package configuration
+└── pytest.ini                  # Test configuration
 ```
 
-## 🔧 Core Components
+## Code Statistics
 
-### 1. Utils Module (`utils/`)
+### v1 Scripts
 
-**leetcode_client.py**
-- `LeetCodeClient` class - Main API client
-- Methods:
-  - `fetch_problem()` - Get problem details
-  - `fetch_solved_problems()` - Get user's solved problems
-  - `fetch_all_problems_with_status()` - Get all problems with solve status
-  - `get_last_accepted_submission()` - Get user's last submission
-  - `fetch_official_solution()` - Get official solution (Premium)
-  - `fetch_solution_articles()` - Get community solutions
-  - `parse_problem()` - Parse and format problem data
+- **Total Lines**: ~1,425 lines
+- **Scripts**: 3 main scripts
+- **Utilities**: 2 utility modules
+- **Dependencies**: 2 packages (requests, beautifulsoup4)
+- **Test Coverage**: None (manual testing)
 
-**formatters.py**
-- `clean_html()` - Remove HTML tags, preserve structure
-- `wrap_text()` - Wrap text at specified width
+### v2 Architecture
 
-### 2. Main Scripts
+- **Total Lines**: ~3,000+ lines
+- **Modules**: 30+ modules
+- **Dependencies**: 10+ packages
+- **Test Coverage**: 73%
+- **Tests**: 100+ test cases
 
-**leetcode_crawler.py**
-- Crawls individual problems
-- Extracts your submitted code
-- Creates Python template files
-- Optional JSON export
-- Optional community solutions
+## Documentation Map
 
-**fetch_solved_problems.py**
-- Lists all your solved problems
-- Filter by difficulty
-- Export to JSON/TXT/MD
-- URLs-only mode for scripting
+### Getting Started
 
-**batch_download_solutions.py** (NEW!)
-- Downloads ALL solved problems at once
-- Saves to `Leet code/To-Revise/`
-- Resume capability
-- Rate limiting
-- Progress tracking
+1. **New Users (v2)**: Start with [README.md](README.md)
+1. **Quick & Simple (v1)**: Start with [v1-scripts/QUICKSTART.md](v1-scripts/QUICKSTART.md)
 
-## 🎯 Use Cases
+### v1 Documentation
 
-### Use Case 1: Quick Review
-**Goal:** Download all solutions for interview prep
+- [v1-scripts/README.md](v1-scripts/README.md) - Full v1 documentation
+- [v1-scripts/QUICKSTART.md](v1-scripts/QUICKSTART.md) - 60-second setup
+- [v1-scripts/EXAMPLES.md](v1-scripts/EXAMPLES.md) - Usage examples
+- [v1-scripts/COMPARISON.md](v1-scripts/COMPARISON.md) - v1 vs v2
+- [v1-scripts/MIGRATION.md](v1-scripts/MIGRATION.md) - Upgrade guide
+
+### v2 Documentation
+
+- [README.md](README.md) - Main documentation
+- [ARCHITECTURE.md](ARCHITECTURE.md) - Technical design
+- [DEVELOPMENT.md](DEVELOPMENT.md) - Development guide
+
+## Usage Comparison
+
+### v1 Usage
 
 ```bash
-python "Leet code/Crawler/batch_download_solutions.py"
+cd v1-scripts
+python leetcode_crawler.py https://leetcode.com/problems/two-sum/
+python batch_download_solutions.py
 ```
 
-**Output:** All solutions in `Leet code/To-Revise/`
-
----
-
-### Use Case 2: Track Progress
-**Goal:** See what you've solved
+### v2 Usage
 
 ```bash
-python "Leet code/Crawler/fetch_solved_problems.py" --output progress.md --format md
+crawler download two-sum --platform leetcode
+crawler batch username --platform leetcode
 ```
 
-**Output:** Markdown file with all solved problems
+## When to Use Each Version
 
----
+### Use v1 When:
 
-### Use Case 3: Specific Problem
-**Goal:** Get one problem with community solutions
+- ✅ You need a quick solution (setup in 60 seconds)
+- ✅ You only need LeetCode support
+- ✅ You prefer simple scripts over packages
+- ✅ You want minimal dependencies
+- ✅ You're doing personal downloads
+
+### Use v2 When:
+
+- ✅ You need production-ready code
+- ✅ You want multiple output formats
+- ✅ You plan to add other platforms
+- ✅ You need comprehensive testing
+- ✅ You prefer clean architecture
+- ✅ You're building a tool for others
+
+## Development Workflow
+
+### v1 Development
 
 ```bash
-python "Leet code/Crawler/leetcode_crawler.py" "URL" --with-solutions
+cd v1-scripts
+# Edit scripts directly
+python leetcode_crawler.py URL
 ```
 
-**Output:** Python file in `Leet code/` directory
-
----
-
-### Use Case 4: Custom Scripting
-**Goal:** Build your own automation
+### v2 Development
 
 ```bash
-# Get URLs only
-python "Leet code/Crawler/fetch_solved_problems.py" --urls-only --output urls.txt
+# Install in development mode
+pip install -e .
 
-# Process URLs with your script
-while read url; do
-  # Your custom logic here
-done < urls.txt
+# Run tests
+pytest
+
+# Check coverage
+pytest --cov=src/crawler
+
+# Use CLI
+crawler download two-sum --platform leetcode
 ```
 
-## 🔄 Data Flow
+## Output Structure
+
+### v1 Output
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                      LeetCode API                           │
-└─────────────────────────────────────────────────────────────┘
-                            ↓
-┌─────────────────────────────────────────────────────────────┐
-│                   LeetCodeClient (utils)                    │
-│  • Authentication                                           │
-│  • API calls                                                │
-│  • Data parsing                                             │
-└─────────────────────────────────────────────────────────────┘
-                            ↓
-        ┌───────────────────┼───────────────────┐
-        ↓                   ↓                   ↓
-┌───────────────┐  ┌──────────────────┐  ┌──────────────────┐
-│ Individual    │  │ List Solved      │  │ Batch Download   │
-│ Crawler       │  │ Problems         │  │ All Solutions    │
-│               │  │                  │  │                  │
-│ • One problem │  │ • List/filter    │  │ • All problems   │
-│ • Detailed    │  │ • Export         │  │ • Auto-save      │
-│ • Custom path │  │ • URLs only      │  │ • Resume         │
-└───────────────┘  └──────────────────┘  └──────────────────┘
-        ↓                   ↓                   ↓
-┌───────────────┐  ┌──────────────────┐  ┌──────────────────┐
-│ Leet code/    │  │ progress.md      │  │ To-Revise/       │
-│ problem.py    │  │ urls.txt         │  │ ├── problem1.py  │
-│               │  │ solved.json      │  │ ├── problem2.py  │
-└───────────────┘  └──────────────────┘  │ └── ...          │
-                                         └──────────────────┘
+v1-scripts/
+├── two-sum.py
+├── add-two-numbers.py
+└── ...
 ```
 
-## 🚀 Quick Commands Reference
-
-```bash
-# Setup (once)
-export LEETCODE_SESSION='your-session'
-export LEETCODE_CSRF='your-csrf'
-
-# Download everything
-python "Leet code/Crawler/batch_download_solutions.py"
-
-# List solved problems
-python "Leet code/Crawler/fetch_solved_problems.py"
-
-# Get one problem
-python "Leet code/Crawler/leetcode_crawler.py" "URL"
-
-# Resume download
-python "Leet code/Crawler/batch_download_solutions.py" --resume
-
-# Export progress
-python "Leet code/Crawler/fetch_solved_problems.py" --output progress.md --format md
-```
-
-## 📦 Dependencies
+### v2 Output
 
 ```
-requests>=2.31.0
-beautifulsoup4>=4.12.0
+problems/
+└── leetcode/
+    ├── two-sum/
+    │   ├── solution.py
+    │   └── metadata.json
+    └── add-two-numbers/
+        ├── solution.py
+        └── metadata.json
 ```
 
-Install with:
-```bash
-pip install -r requirements.txt
+## Architecture Comparison
+
+### v1 Architecture
+
+```
+Scripts → Utils → LeetCode API
 ```
 
-## 🔐 Authentication
+- Procedural programming
+- Direct API calls
+- Simple and straightforward
 
-All scripts use environment variables for authentication:
-- `LEETCODE_SESSION` - Session cookie
-- `LEETCODE_CSRF` - CSRF token
+### v2 Architecture
 
-These can also be passed via command-line arguments:
-```bash
---session "your-session" --csrf "your-csrf"
+```
+CLI → Application → Domain → Infrastructure
 ```
 
-## 📝 Output Formats
+- Clean architecture
+- Dependency injection
+- SOLID principles
+- Testable and extensible
 
-### Python Files
-- Full problem description
-- Your submitted code
-- Performance stats
-- Examples and constraints
-- Hints
+## Migration Path
 
-### JSON Files (optional)
-- Complete problem data
-- All metadata
-- Solutions (if requested)
+1. **Start with v1**: Learn the basics
+1. **Explore v2**: When you need more features
+1. **Use Both**: v1 for quick tasks, v2 for production
 
-### Text/Markdown Files
-- Problem lists
-- URLs
-- Progress tracking
+See [v1-scripts/MIGRATION.md](v1-scripts/MIGRATION.md) for detailed migration guide.
 
-## 🎓 Best Practices
+## Contributing
 
-1. **Set cookies once** - They last weeks
-2. **Use batch download** - Fastest way to get everything
-3. **Use `--resume`** - If interrupted
-4. **Respect rate limits** - Default 1s delay is safe
-5. **Keep cookies private** - Never commit to git
+### v1 Contributions
 
-## 🔧 Extending the Toolkit
+- Keep it simple
+- Maintain backward compatibility
+- Focus on LeetCode support
 
-The modular design makes it easy to extend:
+### v2 Contributions
 
-1. **Add new API methods** - Edit `utils/leetcode_client.py`
-2. **Add new formatters** - Edit `utils/formatters.py`
-3. **Create new scripts** - Import from `utils` module
+- Follow clean architecture
+- Write tests (maintain >80% coverage)
+- Update documentation
+- Follow SOLID principles
 
-Example:
-```python
-from utils.leetcode_client import LeetCodeClient
+See [DEVELOPMENT.md](DEVELOPMENT.md) for detailed guidelines.
 
-client = LeetCodeClient(session, csrf)
-problems = client.fetch_solved_problems()
-# Your custom logic here
-```
+## Support
 
-## 📚 Documentation
+- **v1 Issues**: Check [v1-scripts/README.md](v1-scripts/README.md)
+- **v2 Issues**: Check [README.md](README.md) and [ARCHITECTURE.md](ARCHITECTURE.md)
+- **General Questions**: Open an issue on the repository
 
-- [README.md](README.md) - Complete documentation
-- [QUICK_START.md](QUICK_START.md) - Quick start guide
-- [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) - This file
+## License
 
----
+For personal use only. Respect LeetCode's Terms of Service and rate limits.
 
-**Version:** 2.0  
-**Last Updated:** January 2026  
-**Author:** LeetCode Crawler Toolkit
+______________________________________________________________________
+
+**Quick Links**:
+
+- [Main README](README.md)
+- [v1 Quick Start](v1-scripts/QUICKSTART.md)
+- [v1 vs v2 Comparison](v1-scripts/COMPARISON.md)
+- [Architecture Guide](ARCHITECTURE.md)
+- [Development Guide](DEVELOPMENT.md)

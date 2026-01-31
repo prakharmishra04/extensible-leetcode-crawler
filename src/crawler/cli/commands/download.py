@@ -28,14 +28,14 @@ from crawler.domain.exceptions import (
 class DownloadCommand(Command):
     """
     Command for downloading a single problem from a coding platform.
-    
+
     This command fetches a problem by ID from the specified platform and saves
     it to the local repository using the configured output format. It supports
     force mode to bypass the cache and always fetch fresh data.
-    
+
     The command handles all errors gracefully and provides user-friendly error
     messages with actionable suggestions for common issues.
-    
+
     Attributes:
         problem_id: The platform-specific problem identifier
         platform: The platform name (e.g., "leetcode", "hackerrank")
@@ -45,7 +45,7 @@ class DownloadCommand(Command):
         repository: Repository for problem persistence
         formatter: Output formatter for the specified format
         logger: Logger for operation tracking
-    
+
     Example:
         >>> command = DownloadCommand(
         ...     problem_id="two-sum",
@@ -61,7 +61,7 @@ class DownloadCommand(Command):
         >>> print(result.message)
         "Successfully downloaded problem 'two-sum' from leetcode"
     """
-    
+
     def __init__(
         self,
         problem_id: str,
@@ -75,7 +75,7 @@ class DownloadCommand(Command):
     ):
         """
         Initialize the DownloadCommand.
-        
+
         Args:
             problem_id: The problem identifier (e.g., "two-sum")
             platform: The platform name (e.g., "leetcode")
@@ -94,28 +94,28 @@ class DownloadCommand(Command):
         self.repository = repository
         self.formatter = formatter
         self.logger = logger
-    
+
     def execute(self) -> CommandResult:
         """
         Execute the download command.
-        
+
         This method:
         1. Validates the input parameters
         2. Creates a FetchProblemUseCase instance
         3. Fetches the problem (from cache or platform)
         4. Saves the problem to the repository
         5. Returns a CommandResult with success/failure status
-        
+
         All errors are caught and converted to CommandResult with appropriate
         error messages and suggestions for resolution.
-        
+
         Returns:
             CommandResult: The result of the command execution with:
                 - success: True if download succeeded, False otherwise
                 - message: Human-readable message describing the result
                 - data: The fetched Problem entity (if successful)
                 - error: The exception that occurred (if failed)
-        
+
         Example:
             >>> result = command.execute()
             >>> if result.success:
@@ -126,27 +126,48 @@ class DownloadCommand(Command):
         try:
             # Validate inputs
             self._validate_inputs()
-            
+
             # Log the operation
             self.logger.info(
                 f"Starting download of problem '{self.problem_id}' "
                 f"from platform '{self.platform}' "
                 f"(force={self.force}, format={self.output_format})"
             )
-            
+
             # Create use case and execute
             use_case = FetchProblemUseCase(
                 client=self.client,
                 repository=self.repository,
                 logger=self.logger,
             )
-            
+
             problem = use_case.execute(
                 problem_id=self.problem_id,
                 platform=self.platform,
                 force=self.force,
             )
-            
+
+            # Fetch submission if authenticated
+            submission = None
+            try:
+                self.logger.info(f"Fetching submission for problem '{self.problem_id}'")
+                submission = self.client.fetch_submission(self.problem_id, "")
+                if (
+                    submission
+                    and submission.code
+                    and "Authentication required" not in submission.code
+                ):
+                    self.logger.info(f"Successfully fetched submission in {submission.language}")
+                else:
+                    self.logger.info("No submission available or authentication required")
+                    submission = None
+            except Exception as e:
+                self.logger.warning(f"Could not fetch submission: {e}")
+                submission = None
+
+            # Save problem with submission to repository
+            self.repository.save(problem, submission)
+
             # Success message
             cache_status = "from platform" if self.force else "from cache or platform"
             message = (
@@ -154,15 +175,15 @@ class DownloadCommand(Command):
                 f"(ID: {self.problem_id}) from {self.platform} {cache_status}. "
                 f"Saved as {self.output_format} format."
             )
-            
+
             self.logger.info(message)
-            
+
             return CommandResult(
                 success=True,
                 message=message,
                 data=problem,
             )
-        
+
         except ProblemNotFoundException as e:
             error_message = (
                 f"Problem '{self.problem_id}' not found on {self.platform}. "
@@ -175,7 +196,7 @@ class DownloadCommand(Command):
                 message=error_message,
                 error=e,
             )
-        
+
         except AuthenticationException as e:
             error_message = (
                 f"Authentication failed for {self.platform}: {e.reason}. "
@@ -189,7 +210,7 @@ class DownloadCommand(Command):
                 message=error_message,
                 error=e,
             )
-        
+
         except NetworkException as e:
             error_message = (
                 f"Network error while downloading problem '{self.problem_id}': {str(e)}. "
@@ -208,7 +229,7 @@ class DownloadCommand(Command):
                 message=error_message,
                 error=e,
             )
-        
+
         except UnsupportedPlatformException as e:
             error_message = (
                 f"Platform '{self.platform}' is not supported. "
@@ -221,7 +242,7 @@ class DownloadCommand(Command):
                 message=error_message,
                 error=e,
             )
-        
+
         except RepositoryException as e:
             error_message = (
                 f"Failed to save problem '{self.problem_id}' to repository: {str(e)}. "
@@ -234,7 +255,7 @@ class DownloadCommand(Command):
                 message=error_message,
                 error=e,
             )
-        
+
         except CrawlerException as e:
             error_message = (
                 f"Error downloading problem '{self.problem_id}': {str(e)}. "
@@ -246,7 +267,7 @@ class DownloadCommand(Command):
                 message=error_message,
                 error=e,
             )
-        
+
         except Exception as e:
             error_message = (
                 f"Unexpected error downloading problem '{self.problem_id}': {str(e)}. "
@@ -258,35 +279,35 @@ class DownloadCommand(Command):
                 message=error_message,
                 error=e,
             )
-    
+
     def _validate_inputs(self) -> None:
         """
         Validate command inputs.
-        
+
         Raises:
             ValueError: If any input is invalid
         """
         if not self.problem_id or not self.problem_id.strip():
             raise ValueError("Problem ID cannot be empty")
-        
+
         if not self.platform or not self.platform.strip():
             raise ValueError("Platform cannot be empty")
-        
+
         if not self.output_format or not self.output_format.strip():
             raise ValueError("Output format cannot be empty")
-    
+
     @staticmethod
     def create_argument_parser() -> argparse.ArgumentParser:
         """
         Create an argument parser for the download command.
-        
+
         This static method creates an ArgumentParser configured with all
         the arguments needed for the download command. It can be used by
         the CLI main module to parse command-line arguments.
-        
+
         Returns:
             argparse.ArgumentParser: Configured argument parser
-        
+
         Example:
             >>> parser = DownloadCommand.create_argument_parser()
             >>> args = parser.parse_args(["two-sum", "--platform", "leetcode"])
@@ -300,24 +321,24 @@ class DownloadCommand(Command):
 Examples:
   # Download a problem from LeetCode
   download two-sum --platform leetcode
-  
+
   # Force re-download (bypass cache)
   download two-sum --platform leetcode --force
-  
+
   # Download with specific output format
   download two-sum --platform leetcode --format markdown
-  
+
   # Download with all options
   download two-sum --platform leetcode --force --format json
             """,
         )
-        
+
         parser.add_argument(
             "problem_id",
             type=str,
             help="Problem identifier (e.g., 'two-sum' for LeetCode)",
         )
-        
+
         parser.add_argument(
             "--platform",
             "-p",
@@ -326,7 +347,7 @@ Examples:
             choices=["leetcode"],  # Extensible for future platforms
             help="Platform to download from (currently only 'leetcode' is supported)",
         )
-        
+
         parser.add_argument(
             "--force",
             "-f",
@@ -334,7 +355,7 @@ Examples:
             default=False,
             help="Force re-download, bypassing cache (default: False)",
         )
-        
+
         parser.add_argument(
             "--format",
             type=str,
@@ -342,5 +363,5 @@ Examples:
             choices=["python", "markdown", "json"],
             help="Output format for the problem file (default: python)",
         )
-        
+
         return parser
