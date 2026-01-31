@@ -4,6 +4,7 @@ This module provides mock API responses from various coding platforms.
 Used for testing API clients and adapters without making real HTTP requests.
 Covers common scenarios and edge cases as per Requirements 1.5.
 """
+
 from typing import Any, Dict
 
 

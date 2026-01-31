@@ -9,8 +9,7 @@ from .text_utils import wrap_text
 
 
 class PythonFormatter(OutputFormatter):
-    """
-    Format problems as Python files with comments.
+    """Format problems as Python files with comments.
 
     This formatter creates Python files with the problem description,
     constraints, examples, and hints as comments, followed by the
@@ -23,8 +22,7 @@ class PythonFormatter(OutputFormatter):
     """
 
     def format_problem(self, problem: Problem, submission: Optional[Submission] = None) -> str:
-        """
-        Format a problem as a Python file with comments.
+        """Format a problem as a Python file with comments.
 
         Args:
             problem: The problem entity to format
@@ -108,8 +106,7 @@ class PythonFormatter(OutputFormatter):
         return "\n".join(lines)
 
     def get_file_extension(self) -> str:
-        """
-        Get the file extension for Python files.
+        """Get the file extension for Python files.
 
         Returns:
             str: "py"

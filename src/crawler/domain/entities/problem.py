@@ -1,4 +1,5 @@
 """Problem entity"""
+
 from dataclasses import dataclass
 from typing import List
 

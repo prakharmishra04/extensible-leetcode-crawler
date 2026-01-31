@@ -243,10 +243,11 @@ scripts\setup-dev.bat
 ```
 
 These scripts will:
+
 1. Install the package in development mode
-2. Install all dev dependencies
-3. Set up git hooks (pre-commit, pre-push, commit-msg)
-4. Run initial code quality checks
+1. Install all dev dependencies
+1. Set up git hooks (pre-commit, pre-push, commit-msg)
+1. Run initial code quality checks
 
 **Manual setup:**
 

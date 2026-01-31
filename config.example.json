@@ -1,29 +1,29 @@
 {
   "comment": "Example JSON configuration file for the Coding Platform Crawler",
   "comment2": "Copy this file to config.json and fill in your credentials",
-  
+
   "leetcode_graphql_url": "https://leetcode.com/graphql",
   "leetcode_session_token": "your_leetcode_session_token_here",
   "leetcode_username": "your_leetcode_username",
-  
+
   "comment3": "Future Platform Credentials (for Phase 3 multi-platform support)",
   "hackerrank_api_key": null,
   "codechef_username": null,
   "codechef_password": null,
   "codeforces_api_key": null,
   "codeforces_api_secret": null,
-  
+
   "requests_per_second": 2.0,
-  
+
   "max_retries": 3,
   "initial_delay": 1.0,
   "max_delay": 60.0,
   "exponential_base": 2.0,
   "jitter": true,
-  
+
   "output_dir": "./problems",
   "default_format": "python",
-  
+
   "log_level": "INFO",
   "log_file": null
 }

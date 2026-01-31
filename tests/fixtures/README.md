@@ -49,6 +49,7 @@ Sample Submission entities for various scenarios:
 Mock API responses from various platforms:
 
 #### LeetCode Responses
+
 - **`get_leetcode_problem_response()`** - Problem query response
 - **`get_leetcode_submission_response()`** - Submission details
 - **`get_leetcode_user_profile_response()`** - User profile
@@ -62,6 +63,7 @@ Mock API responses from various platforms:
 - **`get_leetcode_problem_with_html_content_response()`** - Complex HTML
 
 #### Other Platforms
+
 - **`get_hackerrank_problem_response()`** - HackerRank problem
 - **`get_hackerrank_submission_response()`** - HackerRank submission
 - **`get_codechef_problem_response()`** - CodeChef problem
@@ -70,6 +72,7 @@ Mock API responses from various platforms:
 - **`get_codeforces_submission_response()`** - Codeforces submission
 
 #### Edge Cases
+
 - **`get_empty_response()`** - Empty response
 - **`get_malformed_response()`** - Malformed data
 - **`get_partial_data_response()`** - Missing fields
@@ -77,6 +80,7 @@ Mock API responses from various platforms:
 - **`get_server_error_response()`** - 500 error
 
 #### Organized Access
+
 - **`get_api_responses_by_platform()`** - All responses organized by platform
 
 ## Usage Examples
@@ -87,8 +91,9 @@ Mock API responses from various platforms:
 from tests.fixtures import (
     create_easy_problem,
     create_python_submission,
-    get_leetcode_problem_response
+    get_leetcode_problem_response,
 )
+
 
 # Use in tests
 def test_problem_entity():
@@ -96,10 +101,12 @@ def test_problem_entity():
     assert problem.title == "Two Sum"
     assert problem.difficulty.is_easy()
 
+
 def test_submission_entity():
     submission = create_python_submission()
     assert submission.status == SubmissionStatus.ACCEPTED
     assert submission.percentiles.runtime > 80
+
 
 def test_api_adapter():
     response = get_leetcode_problem_response()
@@ -113,19 +120,22 @@ def test_api_adapter():
 from tests.fixtures.problems import (
     create_problem_with_no_hints,
     create_problem_with_minimal_data,
-    create_problems_list
+    create_problems_list,
 )
+
 
 def test_problem_without_hints():
     """Test handling of problems with no hints"""
     problem = create_problem_with_no_hints()
     assert len(problem.hints) == 0
 
+
 def test_minimal_problem():
     """Test handling of minimal required data"""
     problem = create_problem_with_minimal_data()
     assert problem.constraints == ""
     assert len(problem.hints) == 0
+
 
 def test_batch_processing():
     """Test batch processing with multiple problems"""
@@ -140,13 +150,15 @@ def test_batch_processing():
 from tests.fixtures.submissions import (
     create_submission_without_percentiles,
     create_old_submission,
-    create_recent_submission
+    create_recent_submission,
 )
+
 
 def test_submission_without_percentiles():
     """Test handling of submissions without percentiles"""
     submission = create_submission_without_percentiles()
     assert submission.percentiles is None
+
 
 def test_update_mode_logic():
     """Test update mode with old vs recent submissions"""
@@ -162,23 +174,21 @@ def test_update_mode_logic():
 from unittest.mock import Mock
 from tests.fixtures.api_responses import (
     get_leetcode_problem_response,
-    get_leetcode_error_response
+    get_leetcode_error_response,
 )
+
 
 def test_successful_api_call():
     """Test successful API call"""
     mock_http = Mock()
-    mock_http.post.return_value = Mock(
-        json=lambda: get_leetcode_problem_response()
-    )
+    mock_http.post.return_value = Mock(json=lambda: get_leetcode_problem_response())
     # Use mock_http in client...
+
 
 def test_api_error_handling():
     """Test API error handling"""
     mock_http = Mock()
-    mock_http.post.return_value = Mock(
-        json=lambda: get_leetcode_error_response()
-    )
+    mock_http.post.return_value = Mock(json=lambda: get_leetcode_error_response())
     # Test error handling...
 ```
 
@@ -187,14 +197,15 @@ def test_api_error_handling():
 ```python
 from tests.fixtures.api_responses import get_api_responses_by_platform
 
+
 def test_all_platforms():
     """Test adapter works for all platforms"""
     responses = get_api_responses_by_platform()
-    
+
     for platform, platform_responses in responses.items():
         if platform == "edge_cases":
             continue
-        
+
         problem_response = platform_responses.get("problem")
         if problem_response:
             # Test platform-specific adapter...
@@ -204,10 +215,10 @@ def test_all_platforms():
 ## Design Principles
 
 1. **Realistic Data**: Fixtures use realistic data from actual coding platforms
-2. **Edge Cases**: Include edge cases like empty fields, extreme values, errors
-3. **Variety**: Cover different difficulties, languages, platforms, statuses
-4. **Reusability**: Easy to import and use across different test files
-5. **Maintainability**: Well-organized and documented for easy updates
+1. **Edge Cases**: Include edge cases like empty fields, extreme values, errors
+1. **Variety**: Cover different difficulties, languages, platforms, statuses
+1. **Reusability**: Easy to import and use across different test files
+1. **Maintainability**: Well-organized and documented for easy updates
 
 ## Coverage
 
@@ -229,10 +240,10 @@ These fixtures support testing for:
 When adding new fixtures:
 
 1. Follow the existing naming convention: `create_*` for entities, `get_*` for responses
-2. Add comprehensive docstrings explaining the scenario
-3. Include edge cases and error scenarios
-4. Update this README with the new fixture
-5. Export commonly used fixtures in `__init__.py`
+1. Add comprehensive docstrings explaining the scenario
+1. Include edge cases and error scenarios
+1. Update this README with the new fixture
+1. Export commonly used fixtures in `__init__.py`
 
 ## Related Documentation
 

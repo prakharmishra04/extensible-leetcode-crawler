@@ -1,14 +1,16 @@
 """Submission entity"""
+
 from dataclasses import dataclass
 from typing import Optional
-from .enums import SubmissionStatus
+
 from ..value_objects import Percentiles
+from .enums import SubmissionStatus
 
 
 @dataclass
 class Submission:
     """User's code submission entity"""
-    
+
     id: str
     problem_id: str
     language: str
@@ -18,7 +20,7 @@ class Submission:
     memory: str
     timestamp: int
     percentiles: Optional[Percentiles] = None
-    
+
     def __post_init__(self):
         """Validate submission data"""
         if not self.code:

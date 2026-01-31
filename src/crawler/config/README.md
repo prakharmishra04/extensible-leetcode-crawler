@@ -76,8 +76,7 @@ from crawler.config import Config
 
 # Load with all sources
 config = Config.load(
-    config_file=Path("config.yaml"),
-    cli_args={"leetcode_username": "cli_user"}
+    config_file=Path("config.yaml"), cli_args={"leetcode_username": "cli_user"}
 )
 ```
 
@@ -110,6 +109,7 @@ config = Config.from_defaults()
 Supported formats: YAML (`.yaml`, `.yml`) and JSON (`.json`)
 
 **YAML Example** (`config.yaml`):
+
 ```yaml
 leetcode_session_token: "your_token"
 leetcode_username: "your_username"
@@ -121,6 +121,7 @@ log_level: "DEBUG"
 ```
 
 **JSON Example** (`config.json`):
+
 ```json
 {
   "leetcode_session_token": "your_token",
@@ -134,6 +135,7 @@ log_level: "DEBUG"
 ```
 
 Load with:
+
 ```python
 config = Config.from_file(Path("config.yaml"))
 ```
@@ -169,6 +171,7 @@ export CRAWLER_LOG_FILE="/var/log/crawler.log"
 ```
 
 Load with:
+
 ```python
 config = Config.from_env()
 ```
@@ -192,9 +195,9 @@ config = Config.from_cli_args(cli_args)
 When using `Config.load()`, the precedence order is:
 
 1. **CLI Arguments** (highest priority)
-2. **Environment Variables**
-3. **Configuration File**
-4. **Defaults** (lowest priority)
+1. **Environment Variables**
+1. **Configuration File**
+1. **Defaults** (lowest priority)
 
 Example demonstrating precedence:
 
@@ -225,63 +228,60 @@ config = Config.load(
 
 ### LeetCode Configuration
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `leetcode_graphql_url` | str | `"https://leetcode.com/graphql"` | LeetCode GraphQL API endpoint |
-| `leetcode_session_token` | str | `None` | Session token for authentication |
-| `leetcode_username` | str | `None` | LeetCode username |
+| Option                   | Type | Default                          | Description                      |
+| ------------------------ | ---- | -------------------------------- | -------------------------------- |
+| `leetcode_graphql_url`   | str  | `"https://leetcode.com/graphql"` | LeetCode GraphQL API endpoint    |
+| `leetcode_session_token` | str  | `None`                           | Session token for authentication |
+| `leetcode_username`      | str  | `None`                           | LeetCode username                |
 
 ### Future Platform Credentials
 
 These are placeholders for Phase 3 multi-platform support:
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `hackerrank_api_key` | str | `None` | HackerRank API key |
-| `codechef_username` | str | `None` | CodeChef username |
-| `codechef_password` | str | `None` | CodeChef password |
-| `codeforces_api_key` | str | `None` | Codeforces API key |
-| `codeforces_api_secret` | str | `None` | Codeforces API secret |
+| Option                  | Type | Default | Description           |
+| ----------------------- | ---- | ------- | --------------------- |
+| `hackerrank_api_key`    | str  | `None`  | HackerRank API key    |
+| `codechef_username`     | str  | `None`  | CodeChef username     |
+| `codechef_password`     | str  | `None`  | CodeChef password     |
+| `codeforces_api_key`    | str  | `None`  | Codeforces API key    |
+| `codeforces_api_secret` | str  | `None`  | Codeforces API secret |
 
 ### Rate Limiting Configuration
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `requests_per_second` | float | `2.0` | Maximum requests per second |
+| Option                | Type  | Default | Description                 |
+| --------------------- | ----- | ------- | --------------------------- |
+| `requests_per_second` | float | `2.0`   | Maximum requests per second |
 
 ### Retry Configuration
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `max_retries` | int | `3` | Maximum retry attempts |
-| `initial_delay` | float | `1.0` | Initial delay in seconds |
-| `max_delay` | float | `60.0` | Maximum delay in seconds |
-| `exponential_base` | float | `2.0` | Base for exponential backoff |
-| `jitter` | bool | `True` | Add random jitter to delays |
+| Option             | Type  | Default | Description                  |
+| ------------------ | ----- | ------- | ---------------------------- |
+| `max_retries`      | int   | `3`     | Maximum retry attempts       |
+| `initial_delay`    | float | `1.0`   | Initial delay in seconds     |
+| `max_delay`        | float | `60.0`  | Maximum delay in seconds     |
+| `exponential_base` | float | `2.0`   | Base for exponential backoff |
+| `jitter`           | bool  | `True`  | Add random jitter to delays  |
 
 ### Output Configuration
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `output_dir` | str | `"./problems"` | Base directory for problems |
-| `default_format` | str | `"python"` | Default output format (python, markdown, json) |
+| Option           | Type | Default        | Description                                    |
+| ---------------- | ---- | -------------- | ---------------------------------------------- |
+| `output_dir`     | str  | `"./problems"` | Base directory for problems                    |
+| `default_format` | str  | `"python"`     | Default output format (python, markdown, json) |
 
 ### Logging Configuration
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `log_level` | str | `"INFO"` | Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL) |
-| `log_file` | str | `None` | Optional log file path |
+| Option      | Type | Default  | Description                                           |
+| ----------- | ---- | -------- | ----------------------------------------------------- |
+| `log_level` | str  | `"INFO"` | Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL) |
+| `log_file`  | str  | `None`   | Optional log file path                                |
 
 ## Platform-Specific Credentials
 
 Get credentials for a specific platform:
 
 ```python
-config = Config(
-    leetcode_session_token="lc_token",
-    leetcode_username="lc_user"
-)
+config = Config(leetcode_session_token="lc_token", leetcode_username="lc_user")
 
 # Get LeetCode credentials
 creds = config.get_platform_credentials("leetcode")
@@ -293,6 +293,7 @@ creds = config.get_platform_credentials("hackerrank")
 ```
 
 Supported platforms:
+
 - `leetcode`: Returns `session_token` and `username`
 - `hackerrank`: Returns `api_key`
 - `codechef`: Returns `username` and `password`
@@ -368,13 +369,14 @@ cli_args = {
 # Load with precedence
 config = Config.load(
     config_file=args.config,
-    cli_args={k: v for k, v in cli_args.items() if v is not None}
+    cli_args={k: v for k, v in cli_args.items() if v is not None},
 )
 ```
 
 ## Example Configuration Files
 
 See the example configuration files in the repository:
+
 - `config.example.yaml` - YAML format example
 - `config.example.json` - JSON format example
 
@@ -388,11 +390,11 @@ cp config.example.yaml config.yaml
 ## Best Practices
 
 1. **Use Config Files for Persistent Settings**: Store non-sensitive configuration in YAML/JSON files
-2. **Use Environment Variables for Secrets**: Store sensitive credentials (tokens, passwords) in environment variables
-3. **Use CLI Arguments for Overrides**: Override specific settings at runtime without changing files
-4. **Don't Commit Secrets**: Add `config.yaml` and `config.json` to `.gitignore`
-5. **Provide Example Files**: Include `config.example.yaml` in version control
-6. **Document Required Settings**: Clearly document which settings are required for your use case
+1. **Use Environment Variables for Secrets**: Store sensitive credentials (tokens, passwords) in environment variables
+1. **Use CLI Arguments for Overrides**: Override specific settings at runtime without changing files
+1. **Don't Commit Secrets**: Add `config.yaml` and `config.json` to `.gitignore`
+1. **Provide Example Files**: Include `config.example.yaml` in version control
+1. **Document Required Settings**: Clearly document which settings are required for your use case
 
 ## Security Considerations
 

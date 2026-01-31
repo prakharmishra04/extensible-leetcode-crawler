@@ -11,14 +11,14 @@ from dataclasses import dataclass
 @dataclass
 class RetryConfig:
     """Configuration for retry behavior with exponential backoff.
-    
+
     Attributes:
         max_retries: Maximum number of retry attempts (default: 3)
         initial_delay: Initial delay in seconds before first retry (default: 1.0)
         max_delay: Maximum delay in seconds between retries (default: 60.0)
         exponential_base: Base for exponential backoff calculation (default: 2.0)
         jitter: Whether to add random jitter to delays (default: True)
-    
+
     Example:
         >>> config = RetryConfig(max_retries=5, initial_delay=2.0)
         >>> config.max_retries
@@ -26,13 +26,13 @@ class RetryConfig:
         >>> config.initial_delay
         2.0
     """
-    
+
     max_retries: int = 3
     initial_delay: float = 1.0
     max_delay: float = 60.0
     exponential_base: float = 2.0
     jitter: bool = True
-    
+
     def __post_init__(self):
         """Validate retry configuration parameters."""
         if self.max_retries < 0:

@@ -1,4 +1,5 @@
 """Constraint value object"""
+
 from dataclasses import dataclass
 
 

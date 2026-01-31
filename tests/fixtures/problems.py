@@ -3,6 +3,7 @@
 This module provides sample Problem entities for use in tests.
 Covers common scenarios and edge cases as per Requirements 1.5.
 """
+
 from typing import List
 
 from src.crawler.domain.entities.problem import Problem

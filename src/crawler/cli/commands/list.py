@@ -11,31 +11,25 @@ from logging import Logger
 from typing import List, Optional
 
 from crawler.application.interfaces.repository import ProblemRepository
-from crawler.application.use_cases.list_problems import (
-    ListOptions,
-    ListProblemsUseCase,
-)
+from crawler.application.use_cases.list_problems import ListOptions, ListProblemsUseCase
 from crawler.cli.commands.base import Command, CommandResult
 from crawler.domain.entities import Problem
-from crawler.domain.exceptions import (
-    CrawlerException,
-    RepositoryException,
-)
+from crawler.domain.exceptions import CrawlerException, RepositoryException
 
 
 class ListCommand(Command):
     """
     Command for listing downloaded problems with filtering and sorting.
-    
+
     This command retrieves all problems from the local repository and displays
     them with optional filtering by platform, difficulty, and topics. It also
     supports sorting by various fields (id, title, difficulty, acceptance_rate,
     platform) in ascending or descending order.
-    
+
     The command provides a convenient way to view what problems have been
     downloaded, find problems by specific criteria, and organize the problem
     list for review.
-    
+
     Attributes:
         platform: Optional platform name to filter by (e.g., "leetcode")
         difficulty_filter: Optional list of difficulty levels to include
@@ -44,7 +38,7 @@ class ListCommand(Command):
         reverse: Whether to sort in descending order
         repository: Repository for accessing stored problems
         logger: Logger for operation tracking
-    
+
     Example:
         >>> command = ListCommand(
         ...     platform="leetcode",
@@ -59,7 +53,7 @@ class ListCommand(Command):
         >>> print(result.message)
         "Found 42 problems matching criteria"
     """
-    
+
     def __init__(
         self,
         platform: Optional[str],
@@ -72,7 +66,7 @@ class ListCommand(Command):
     ):
         """
         Initialize the ListCommand.
-        
+
         Args:
             platform: Optional platform name to filter by (e.g., "leetcode")
             difficulty_filter: Optional list of difficulty levels (e.g., ["Easy", "Medium"])
@@ -89,28 +83,28 @@ class ListCommand(Command):
         self.reverse = reverse
         self.repository = repository
         self.logger = logger
-    
+
     def execute(self) -> CommandResult:
         """
         Execute the list command.
-        
+
         This method:
         1. Validates the input parameters
         2. Creates a ListProblemsUseCase instance
         3. Configures ListOptions with filters and sorting
         4. Retrieves the filtered and sorted list of problems
         5. Returns a CommandResult with the list of problems
-        
+
         All errors are caught and converted to CommandResult with appropriate
         error messages and suggestions for resolution.
-        
+
         Returns:
             CommandResult: The result of the command execution with:
                 - success: True if listing succeeded, False otherwise
                 - message: Human-readable message describing the result
                 - data: List of Problem entities matching the criteria
                 - error: The exception that occurred (if failed)
-        
+
         Example:
             >>> result = command.execute()
             >>> if result.success:
@@ -122,14 +116,14 @@ class ListCommand(Command):
         try:
             # Validate inputs
             self._validate_inputs()
-            
+
             # Log the operation
             filter_desc = self._build_filter_description()
             self.logger.info(
                 f"Listing problems with filters: {filter_desc}, "
                 f"sort_by={self.sort_by}, reverse={self.reverse}"
             )
-            
+
             # Create list options
             options = ListOptions(
                 platform=self.platform,
@@ -138,26 +132,26 @@ class ListCommand(Command):
                 sort_by=self.sort_by,
                 reverse=self.reverse,
             )
-            
+
             # Create use case and execute
             use_case = ListProblemsUseCase(
                 repository=self.repository,
                 logger=self.logger,
             )
-            
+
             problems = use_case.execute(options)
-            
+
             # Build success message
             message = self._build_result_message(problems, filter_desc)
-            
+
             self.logger.info(message)
-            
+
             return CommandResult(
                 success=True,
                 message=message,
                 data=problems,
             )
-        
+
         except RepositoryException as e:
             error_message = (
                 f"Failed to list problems from repository: {str(e)}. "
@@ -170,7 +164,7 @@ class ListCommand(Command):
                 message=error_message,
                 error=e,
             )
-        
+
         except ValueError as e:
             error_message = (
                 f"Invalid parameter: {str(e)}. "
@@ -182,7 +176,7 @@ class ListCommand(Command):
                 message=error_message,
                 error=e,
             )
-        
+
         except CrawlerException as e:
             error_message = (
                 f"Error listing problems: {str(e)}. "
@@ -194,7 +188,7 @@ class ListCommand(Command):
                 message=error_message,
                 error=e,
             )
-        
+
         except Exception as e:
             error_message = (
                 f"Unexpected error listing problems: {str(e)}. "
@@ -206,11 +200,11 @@ class ListCommand(Command):
                 message=error_message,
                 error=e,
             )
-    
+
     def _validate_inputs(self) -> None:
         """
         Validate command inputs.
-        
+
         Raises:
             ValueError: If any input is invalid
         """
@@ -221,7 +215,7 @@ class ListCommand(Command):
                 f"Invalid sort_by field '{self.sort_by}'. "
                 f"Must be one of: {', '.join(sorted(valid_sort_fields))}"
             )
-        
+
         # Validate difficulty filter values
         if self.difficulty_filter:
             valid_difficulties = {"Easy", "Medium", "Hard"}
@@ -231,77 +225,77 @@ class ListCommand(Command):
                         f"Invalid difficulty '{difficulty}'. "
                         f"Must be one of: {', '.join(sorted(valid_difficulties))}"
                     )
-        
+
         # Validate platform if specified
         if self.platform and not self.platform.strip():
             raise ValueError("Platform cannot be empty string")
-    
+
     def _build_filter_description(self) -> str:
         """
         Build a human-readable description of active filters.
-        
+
         Returns:
             String describing the active filters
         """
         filters = []
-        
+
         if self.platform:
             filters.append(f"platform={self.platform}")
-        
+
         if self.difficulty_filter:
             filters.append(f"difficulty={', '.join(self.difficulty_filter)}")
-        
+
         if self.topic_filter:
             filters.append(f"topics={', '.join(self.topic_filter)}")
-        
+
         return ", ".join(filters) if filters else "no filters"
-    
+
     def _build_result_message(self, problems: List[Problem], filter_desc: str) -> str:
         """
         Build a human-readable result message.
-        
+
         Args:
             problems: List of problems returned by the use case
             filter_desc: Description of active filters
-        
+
         Returns:
             Formatted message string
         """
         count = len(problems)
-        
+
         if count == 0:
             if filter_desc == "no filters":
                 return "No problems found in repository. Download some problems first."
             else:
                 return f"No problems found matching criteria ({filter_desc})."
-        
+
         # Build message with count and filters
         if count == 1:
             message = "Found 1 problem"
         else:
             message = f"Found {count} problems"
-        
+
         if filter_desc != "no filters":
             message += f" matching criteria ({filter_desc})"
-        
+
         # Add sorting info
         sort_order = "descending" if self.reverse else "ascending"
         message += f", sorted by {self.sort_by} ({sort_order})"
-        
+
         return message + "."
-    
+
     @staticmethod
     def create_argument_parser() -> argparse.ArgumentParser:
         """
         Create an argument parser for the list command.
-        
+
         This static method creates an ArgumentParser configured with all
         the arguments needed for the list command. It can be used by
         the CLI main module to parse command-line arguments.
-        
+
         Returns:
             argparse.ArgumentParser: Configured argument parser
-        
+
         Example:
             >>> parser = ListCommand.create_argument_parser()
             >>> args = parser.parse_args([
@@ -320,27 +314,27 @@ class ListCommand(Command):
 Examples:
   # List all downloaded problems
   list
-  
+
   # List problems from a specific platform
   list --platform leetcode
-  
+
   # List only Easy and Medium problems
   list --difficulty Easy Medium
-  
+
   # List problems with specific topics
   list --topics Array "Hash Table"
-  
+
   # List problems sorted by acceptance rate (highest first)
   list --sort-by acceptance_rate --reverse
-  
+
   # List Easy LeetCode problems on Array topic, sorted by title
   list --platform leetcode --difficulty Easy --topics Array --sort-by title
-  
+
   # List all problems sorted by difficulty (Easy to Hard)
   list --sort-by difficulty
             """,
         )
-        
+
         parser.add_argument(
             "--platform",
             "-p",
@@ -348,7 +342,7 @@ Examples:
             choices=["leetcode"],  # Extensible for future platforms
             help="Filter by platform (e.g., 'leetcode')",
         )
-        
+
         parser.add_argument(
             "--difficulty",
             "-d",
@@ -357,7 +351,7 @@ Examples:
             choices=["Easy", "Medium", "Hard"],
             help="Filter by difficulty levels (can specify multiple)",
         )
-        
+
         parser.add_argument(
             "--topics",
             "-t",
@@ -365,7 +359,7 @@ Examples:
             nargs="+",
             help="Filter by topics (can specify multiple, e.g., 'Array' 'Hash Table')",
         )
-        
+
         parser.add_argument(
             "--sort-by",
             "-s",
@@ -374,7 +368,7 @@ Examples:
             choices=["id", "title", "difficulty", "acceptance_rate", "platform"],
             help="Field to sort by (default: id)",
         )
-        
+
         parser.add_argument(
             "--reverse",
             "-r",
@@ -382,5 +376,5 @@ Examples:
             default=False,
             help="Sort in descending order (default: ascending)",
         )
-        
+
         return parser

@@ -259,12 +259,14 @@ class FileSystemRepository(ProblemRepository):
                 "runtime": submission.runtime,
                 "memory": submission.memory,
                 "timestamp": submission.timestamp,
-                "percentiles": {
-                    "runtime": submission.percentiles.runtime,
-                    "memory": submission.percentiles.memory,
-                }
-                if submission.percentiles
-                else None,
+                "percentiles": (
+                    {
+                        "runtime": submission.percentiles.runtime,
+                        "memory": submission.percentiles.memory,
+                    }
+                    if submission.percentiles
+                    else None
+                ),
             }
 
         return data

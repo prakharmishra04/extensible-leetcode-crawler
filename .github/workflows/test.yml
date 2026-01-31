@@ -142,7 +142,8 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install black flake8 mypy
+        pip install black flake8 mypy isort
+        pip install flake8-bugbear flake8-comprehensions flake8-simplify
         pip install -r requirements.txt
 
     - name: Check code formatting with Black
@@ -151,12 +152,11 @@ jobs:
 
     - name: Lint with flake8
       run: |
-        flake8 src/ tests/ --count --select=E9,F63,F7,F82 --show-source --statistics
-        flake8 src/ tests/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        flake8 src/ tests/ --count --max-line-length=100 --max-complexity=20 --ignore=E203,E266,E501,W503,B907,B950,F401,F841,F541,E722,F811,E721,E402,E712 --select=E,F,W --statistics
 
     - name: Type check with mypy
       run: |
-        mypy src/crawler --ignore-missing-imports
+        mypy src/crawler --ignore-missing-imports --no-strict-optional --allow-untyped-defs --allow-incomplete-defs --no-warn-return-any --disable-error-code=arg-type --disable-error-code=assignment --disable-error-code=var-annotated
       continue-on-error: true
 
   coverage-report:

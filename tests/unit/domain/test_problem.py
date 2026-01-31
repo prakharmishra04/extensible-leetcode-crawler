@@ -1,4 +1,5 @@
 """Unit tests for Problem entity"""
+
 import pytest
 
 from src.crawler.domain.entities import Problem

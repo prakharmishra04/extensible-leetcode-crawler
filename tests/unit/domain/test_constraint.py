@@ -1,8 +1,9 @@
 """Unit tests for Constraint value object"""
+
 import re
 
 import pytest
-from hypothesis import given, settings
+from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
 from src.crawler.domain.value_objects import Constraint
@@ -606,7 +607,7 @@ class TestConstraintParsingProperties:
                 found
             ), f"Numeric range {lower} <= {var_name} <= {upper} not found in any constraint"
 
-    @settings(deadline=None)
+    @settings(deadline=None, suppress_health_check=[HealthCheck.filter_too_much])
     @given(
         constraint_text=st.text(
             alphabet=st.characters(

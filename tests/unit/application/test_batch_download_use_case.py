@@ -1,7 +1,7 @@
 """Unit tests for BatchDownloadUseCase."""
 
 import logging
-from unittest.mock import Mock, MagicMock, call
+from unittest.mock import MagicMock, Mock, call
 
 import pytest
 
@@ -61,7 +61,7 @@ def sample_problem():
             Example(
                 input="nums = [2,7,11,15], target = 9",
                 output="[0,1]",
-                explanation="nums[0] + nums[1] == 9"
+                explanation="nums[0] + nums[1] == 9",
             )
         ],
         hints=["Use a hash table"],
@@ -73,6 +73,7 @@ def sample_problem():
 def sample_submission():
     """Create a sample submission for testing."""
     from crawler.domain.entities import SubmissionStatus
+
     return Submission(
         id="sub-123",
         problem_id="two-sum",
@@ -99,7 +100,7 @@ def use_case(mock_client, mock_repository, mock_formatter, mock_observer, mock_l
 
 class TestBatchDownloadUseCase:
     """Test BatchDownloadUseCase class."""
-    
+
     def test_init(self, mock_client, mock_repository, mock_formatter, mock_observer, mock_logger):
         """Test initialization of BatchDownloadUseCase."""
         use_case = BatchDownloadUseCase(
@@ -109,13 +110,13 @@ class TestBatchDownloadUseCase:
             observers=[mock_observer],
             logger=mock_logger,
         )
-        
+
         assert use_case.client == mock_client
         assert use_case.repository == mock_repository
         assert use_case.formatter == mock_formatter
         assert use_case.observers == [mock_observer]
         assert use_case.logger == mock_logger
-    
+
     def test_execute_with_empty_problem_list(self, use_case, mock_client, mock_observer):
         """Test execute with no problems to download."""
         # Setup
@@ -125,21 +126,21 @@ class TestBatchDownloadUseCase:
             platform="leetcode",
             update_mode=UpdateMode.SKIP,
         )
-        
+
         # Execute
         stats = use_case.execute(options)
-        
+
         # Verify
         assert stats.total == 0
         assert stats.downloaded == 0
         assert stats.skipped == 0
         assert stats.failed == 0
         assert stats.duration >= 0
-        
+
         # Verify observer was notified
         mock_observer.on_start.assert_called_once_with(0)
         mock_observer.on_complete.assert_called_once()
-    
+
     def test_execute_with_single_problem_skip_mode(
         self, use_case, mock_client, mock_repository, mock_observer, sample_problem
     ):
@@ -152,27 +153,33 @@ class TestBatchDownloadUseCase:
             platform="leetcode",
             update_mode=UpdateMode.SKIP,
         )
-        
+
         # Execute
         stats = use_case.execute(options)
-        
+
         # Verify
         assert stats.total == 1
         assert stats.downloaded == 0
         assert stats.skipped == 1
         assert stats.failed == 0
-        
+
         # Verify repository was checked but not saved
         mock_repository.exists.assert_called_once_with("two-sum", "leetcode")
         mock_repository.save.assert_not_called()
-        
+
         # Verify observer was notified
         mock_observer.on_start.assert_called_once_with(1)
         mock_observer.on_skip.assert_called_once()
         mock_observer.on_complete.assert_called_once()
-    
+
     def test_execute_with_single_problem_force_mode(
-        self, use_case, mock_client, mock_repository, mock_observer, sample_problem, sample_submission
+        self,
+        use_case,
+        mock_client,
+        mock_repository,
+        mock_observer,
+        sample_problem,
+        sample_submission,
     ):
         """Test execute with single problem in FORCE mode."""
         # Setup
@@ -185,29 +192,27 @@ class TestBatchDownloadUseCase:
             platform="leetcode",
             update_mode=UpdateMode.FORCE,
         )
-        
+
         # Execute
         stats = use_case.execute(options)
-        
+
         # Verify
         assert stats.total == 1
         assert stats.downloaded == 1
         assert stats.skipped == 0
         assert stats.failed == 0
-        
+
         # Verify problem was fetched and saved
         mock_client.fetch_problem.assert_called_once_with("two-sum")
         mock_client.fetch_submission.assert_called_once_with("two-sum", "john_doe")
         mock_repository.save.assert_called_once_with(sample_problem, sample_submission)
-        
+
         # Verify observer was notified
         mock_observer.on_start.assert_called_once_with(1)
         mock_observer.on_progress.assert_called_once_with(1, 1, sample_problem)
         mock_observer.on_complete.assert_called_once()
-    
-    def test_execute_with_difficulty_filter(
-        self, use_case, mock_client, mock_observer
-    ):
+
+    def test_execute_with_difficulty_filter(self, use_case, mock_client, mock_observer):
         """Test execute with difficulty filter."""
         # Setup
         easy_problem = Problem(
@@ -234,7 +239,7 @@ class TestBatchDownloadUseCase:
             hints=[],
             acceptance_rate=20.0,
         )
-        
+
         mock_client.fetch_solved_problems.return_value = [easy_problem, hard_problem]
         options = BatchDownloadOptions(
             username="john_doe",
@@ -242,17 +247,15 @@ class TestBatchDownloadUseCase:
             update_mode=UpdateMode.SKIP,
             difficulty_filter=["Easy"],
         )
-        
+
         # Execute
         stats = use_case.execute(options)
-        
+
         # Verify - only easy problem should be processed
         assert stats.total == 1
         mock_observer.on_start.assert_called_once_with(1)
-    
-    def test_execute_with_topic_filter(
-        self, use_case, mock_client, mock_observer
-    ):
+
+    def test_execute_with_topic_filter(self, use_case, mock_client, mock_observer):
         """Test execute with topic filter."""
         # Setup
         array_problem = Problem(
@@ -279,7 +282,7 @@ class TestBatchDownloadUseCase:
             hints=[],
             acceptance_rate=30.0,
         )
-        
+
         mock_client.fetch_solved_problems.return_value = [array_problem, graph_problem]
         options = BatchDownloadOptions(
             username="john_doe",
@@ -287,14 +290,14 @@ class TestBatchDownloadUseCase:
             update_mode=UpdateMode.SKIP,
             topic_filter=["Array"],
         )
-        
+
         # Execute
         stats = use_case.execute(options)
-        
+
         # Verify - only array problem should be processed
         assert stats.total == 1
         mock_observer.on_start.assert_called_once_with(1)
-    
+
     def test_execute_with_partial_failure(
         self, use_case, mock_client, mock_repository, mock_observer, sample_problem
     ):
@@ -313,35 +316,35 @@ class TestBatchDownloadUseCase:
             hints=[],
             acceptance_rate=40.0,
         )
-        
+
         mock_client.fetch_solved_problems.return_value = [problem1, problem2]
         mock_repository.exists.return_value = False
-        
+
         # Make first problem succeed, second fail
         mock_client.fetch_problem.side_effect = [
             problem1,
             Exception("Network error"),
         ]
-        
+
         options = BatchDownloadOptions(
             username="john_doe",
             platform="leetcode",
             update_mode=UpdateMode.FORCE,
         )
-        
+
         # Execute
         stats = use_case.execute(options)
-        
+
         # Verify - one succeeded, one failed
         assert stats.total == 2
         assert stats.downloaded == 1
         assert stats.skipped == 0
         assert stats.failed == 1
-        
+
         # Verify observer was notified of error
         mock_observer.on_error.assert_called_once()
         mock_observer.on_complete.assert_called_once()
-    
+
     def test_execute_with_submission_fetch_failure(
         self, use_case, mock_client, mock_repository, mock_observer, sample_problem
     ):
@@ -351,24 +354,24 @@ class TestBatchDownloadUseCase:
         mock_client.fetch_problem.return_value = sample_problem
         mock_client.fetch_submission.side_effect = Exception("Submission not found")
         mock_repository.exists.return_value = False
-        
+
         options = BatchDownloadOptions(
             username="john_doe",
             platform="leetcode",
             update_mode=UpdateMode.FORCE,
         )
-        
+
         # Execute
         stats = use_case.execute(options)
-        
+
         # Verify - problem saved without submission
         assert stats.total == 1
         assert stats.downloaded == 1
         assert stats.failed == 0
-        
+
         # Verify problem was saved without submission
         mock_repository.save.assert_called_once_with(sample_problem, None)
-    
+
     def test_execute_with_multiple_observers(
         self, mock_client, mock_repository, mock_formatter, mock_logger, sample_problem
     ):
@@ -383,7 +386,7 @@ class TestBatchDownloadUseCase:
             observers=[observer1, observer2],
             logger=mock_logger,
         )
-        
+
         mock_client.fetch_solved_problems.return_value = [sample_problem]
         mock_repository.exists.return_value = True
         options = BatchDownloadOptions(
@@ -391,10 +394,10 @@ class TestBatchDownloadUseCase:
             platform="leetcode",
             update_mode=UpdateMode.SKIP,
         )
-        
+
         # Execute
         stats = use_case.execute(options)
-        
+
         # Verify both observers were notified
         observer1.on_start.assert_called_once_with(1)
         observer2.on_start.assert_called_once_with(1)
@@ -402,7 +405,7 @@ class TestBatchDownloadUseCase:
         observer2.on_skip.assert_called_once()
         observer1.on_complete.assert_called_once()
         observer2.on_complete.assert_called_once()
-    
+
     def test_execute_handles_observer_exceptions(
         self, use_case, mock_client, mock_repository, mock_observer, sample_problem
     ):
@@ -411,16 +414,16 @@ class TestBatchDownloadUseCase:
         mock_client.fetch_solved_problems.return_value = [sample_problem]
         mock_repository.exists.return_value = True
         mock_observer.on_start.side_effect = Exception("Observer error")
-        
+
         options = BatchDownloadOptions(
             username="john_doe",
             platform="leetcode",
             update_mode=UpdateMode.SKIP,
         )
-        
+
         # Execute - should not raise exception
         stats = use_case.execute(options)
-        
+
         # Verify execution completed despite observer error
         assert stats.total == 1
         assert stats.skipped == 1

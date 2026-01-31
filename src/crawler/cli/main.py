@@ -395,9 +395,9 @@ def execute_batch_command(args: argparse.Namespace, config: Config, logger) -> i
             update_mode=update_mode,
             difficulty_filter=args.difficulty if hasattr(args, "difficulty") else None,
             topic_filter=args.topics if hasattr(args, "topics") else None,
-            include_community=args.include_community
-            if hasattr(args, "include_community")
-            else False,
+            include_community=(
+                args.include_community if hasattr(args, "include_community") else False
+            ),
             output_format=args.format,
             limit=args.limit if hasattr(args, "limit") else None,
             client=platform_client,
