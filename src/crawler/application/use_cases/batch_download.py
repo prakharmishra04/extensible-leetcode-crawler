@@ -215,18 +215,20 @@ class BatchDownloadUseCase:
             # Use fetch_all_problems_with_status to get complete list of solved problems
             problems = self.client.fetch_all_problems_with_status(status_filter="ac")
             self.logger.info(f"Found {len(problems)} solved problems")
-
-            # Apply limit if specified
-            if options.limit and options.limit < len(problems):
-                self.logger.info(f"Limiting to {options.limit} problems as requested")
-                problems = problems[: options.limit]
         except Exception as e:
             self.logger.error(f"Failed to fetch solved problems for user '{options.username}': {e}")
             raise
 
-        # Apply filters
+        # Apply filters (difficulty, topics)
         problems = self._apply_filters(problems, options)
-        self.logger.info(f"After filtering: {len(problems)} problems to download")
+        self.logger.info(f"After filtering: {len(problems)} problems")
+
+        # Apply limit if specified
+        if options.limit and options.limit < len(problems):
+            self.logger.info(f"Limiting to {options.limit} problems as requested")
+            problems = problems[: options.limit]
+
+        self.logger.info(f"Will process {len(problems)} problems")
 
         # Notify observers that batch is starting
         self._notify_start(len(problems))
@@ -318,7 +320,7 @@ class BatchDownloadUseCase:
         """
         problem_exists = self.repository.exists(problem.id, problem.platform)
 
-        # Handle SKIP mode
+        # Handle SKIP mode - should not reach here if already exists (pre-filtered)
         if options.update_mode == UpdateMode.SKIP and problem_exists:
             self.logger.debug(f"Skipping problem '{problem.id}' (already exists, mode=SKIP)")
             stats.skipped += 1
