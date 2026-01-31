@@ -197,7 +197,9 @@ class BatchDownloadCommand(Command):
             stats = use_case.execute(options)
 
             # Determine success based on whether any problems were downloaded
-            success = stats.downloaded > 0 or (stats.total == stats.skipped and stats.failed == 0)
+            # OR if there were no problems to download (all pre-filtered or none found)
+            # Success means: downloaded something OR nothing failed
+            success = stats.downloaded > 0 or stats.failed == 0
 
             # Build success message
             message = self._build_result_message(stats)
