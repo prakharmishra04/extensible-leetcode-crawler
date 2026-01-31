@@ -3,7 +3,7 @@
 [![Tests](https://github.com/prakharmishra04/extensible-leetcode-crawler/workflows/Tests/badge.svg)](https://github.com/prakharmishra04/extensible-leetcode-crawler/actions)
 [![Pre-commit](https://github.com/prakharmishra04/extensible-leetcode-crawler/workflows/Pre-commit%20Checks/badge.svg)](https://github.com/prakharmishra04/extensible-leetcode-crawler/actions)
 [![Coverage](https://img.shields.io/badge/coverage-89%25-brightgreen)](htmlcov/index.html)
-[![Python](https://img.shields.io/badge/python-3.8%2B-blue)](https://www.python.org/downloads/)
+[![Python](https://img.shields.io/badge/python-3.8--3.12-blue)](https://www.python.org/downloads/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 A well-architected Python toolkit for downloading and managing coding problems from LeetCode with extensible support for additional platforms. Built with clean architecture principles, comprehensive testing, and SOLID design patterns.
