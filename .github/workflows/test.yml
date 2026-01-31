@@ -37,8 +37,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install pytest pytest-cov pytest-mock hypothesis
+        pip install -e ".[dev]"
 
     - name: Run unit tests with coverage
       run: |
@@ -68,8 +67,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install pytest pytest-mock
+        pip install -e ".[dev]"
 
     - name: Run integration tests
       run: |
@@ -92,8 +90,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install pytest
+        pip install -e ".[dev]"
 
     - name: Run E2E tests
       run: |
@@ -119,8 +116,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install pytest hypothesis
+        pip install -e ".[dev]"
 
     - name: Run property tests with extended iterations
       run: |
@@ -143,9 +139,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install black flake8 mypy isort
-        pip install flake8-bugbear flake8-comprehensions flake8-simplify
-        pip install -r requirements.txt
+        pip install -e ".[dev]"
 
     - name: Check code formatting with Black
       run: |
@@ -176,8 +170,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install pytest pytest-cov
+        pip install -e ".[dev]"
 
     - name: Run all tests with coverage
       run: |
