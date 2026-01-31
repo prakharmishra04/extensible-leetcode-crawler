@@ -49,10 +49,10 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/coding-platform-crawler"
-Documentation = "https://github.com/yourusername/coding-platform-crawler#readme"
-Repository = "https://github.com/yourusername/coding-platform-crawler"
-Issues = "https://github.com/yourusername/coding-platform-crawler/issues"
+Homepage = "https://github.com/prakharmishra04/extensible-leetcode-crawler"
+Documentation = "https://github.com/prakharmishra04/extensible-leetcode-crawler#readme"
+Repository = "https://github.com/prakharmishra04/extensible-leetcode-crawler"
+Issues = "https://github.com/prakharmishra04/extensible-leetcode-crawler/issues"
 
 [project.scripts]
 crawler = "crawler.cli.main:main"

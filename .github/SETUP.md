@@ -262,8 +262,8 @@ pre-commit run --all-files
 Add these badges to your README.md:
 
 ```markdown
-[![Tests](https://github.com/yourusername/coding-platform-crawler/workflows/Tests/badge.svg)](https://github.com/yourusername/coding-platform-crawler/actions/workflows/test.yml)
-[![codecov](https://codecov.io/gh/yourusername/coding-platform-crawler/branch/main/graph/badge.svg)](https://codecov.io/gh/yourusername/coding-platform-crawler)
+[![Tests](https://github.com/prakharmishra04/extensible-leetcode-crawler/workflows/Tests/badge.svg)](https://github.com/prakharmishra04/extensible-leetcode-crawler/actions/workflows/test.yml)
+[![codecov](https://codecov.io/gh/prakharmishra04/extensible-leetcode-crawler/branch/main/graph/badge.svg)](https://codecov.io/gh/prakharmishra04/extensible-leetcode-crawler)
 [![PyPI version](https://badge.fury.io/py/coding-platform-crawler.svg)](https://badge.fury.io/py/coding-platform-crawler)
 [![Python versions](https://img.shields.io/pypi/pyversions/coding-platform-crawler.svg)](https://pypi.org/project/coding-platform-crawler/)
 ```

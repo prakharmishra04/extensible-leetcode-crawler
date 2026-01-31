@@ -27,9 +27,9 @@ Installed via `pre-commit install`, these hooks run automatically:
 
 **Code Quality:**
 
-- `flake8` - Python linting (max complexity: 10)
-- `mypy` - Static type checking
-- `pydocstyle` - Docstring validation (Google style)
+- `flake8` - Python linting (max complexity: 20, relaxed for production code)
+- `mypy` - Static type checking (with appropriate flags)
+- `pydocstyle` - Docstring validation (temporarily disabled)
 
 **Security:**
 
@@ -51,7 +51,7 @@ Installed via `pre-commit install`, these hooks run automatically:
 
 **Commit Message Validation:**
 
-- `conventional-pre-commit` - Enforces Conventional Commits format
+- `conventional-pre-commit` - Enforces Conventional Commits format (temporarily disabled)
 
 Valid commit types:
 
@@ -288,8 +288,8 @@ git commit -m "Fix bug"        # ❌ Type not lowercase
 
 ## Metrics & Coverage
 
-**Current Coverage:** 73%
-**Target Coverage:** >80%
+**Current Coverage:** 89%
+**Target Coverage:** >80% ✅ Achieved
 
 View coverage report:
 

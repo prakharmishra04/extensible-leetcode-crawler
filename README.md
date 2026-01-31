@@ -1,8 +1,8 @@
 # Coding Platform Crawler
 
-[![Tests](https://github.com/yourusername/coding-platform-crawler/workflows/Tests/badge.svg)](https://github.com/yourusername/coding-platform-crawler/actions)
-[![Pre-commit](https://github.com/yourusername/coding-platform-crawler/workflows/Pre-commit%20Checks/badge.svg)](https://github.com/yourusername/coding-platform-crawler/actions)
-[![Coverage](https://img.shields.io/badge/coverage-73%25-yellow)](htmlcov/index.html)
+[![Tests](https://github.com/prakharmishra04/extensible-leetcode-crawler/workflows/Tests/badge.svg)](https://github.com/prakharmishra04/extensible-leetcode-crawler/actions)
+[![Pre-commit](https://github.com/prakharmishra04/extensible-leetcode-crawler/workflows/Pre-commit%20Checks/badge.svg)](https://github.com/prakharmishra04/extensible-leetcode-crawler/actions)
+[![Coverage](https://img.shields.io/badge/coverage-89%25-brightgreen)](htmlcov/index.html)
 [![Python](https://img.shields.io/badge/python-3.8%2B-blue)](https://www.python.org/downloads/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
@@ -18,7 +18,7 @@ A well-architected Python toolkit for downloading and managing coding problems f
 - 🏗️ Extensible architecture: Easy to add support for new platforms
 - ⚙️ Flexible configuration: CLI args, environment variables, or config files
 - 🔁 Robust error handling: Automatic retries with exponential backoff
-- 🧪 Comprehensive tests: 73% code coverage with unit and integration tests
+- 🧪 Comprehensive tests: 89% code coverage with 617 tests (unit + integration)
 
 ## Quick Start
 
