@@ -223,12 +223,28 @@ class BatchDownloadUseCase:
         problems = self._apply_filters(problems, options)
         self.logger.info(f"After filtering: {len(problems)} problems")
 
-        # Apply limit if specified
+        # For SKIP mode, filter out already-downloaded problems BEFORE applying limit
+        # This ensures --limit applies to NEW problems only
+        if options.update_mode == UpdateMode.SKIP:
+            original_count = len(problems)
+            problems = [p for p in problems if not self.repository.exists(p.id, p.platform)]
+            already_downloaded = original_count - len(problems)
+            if already_downloaded > 0:
+                self.logger.info(
+                    f"Found {already_downloaded} already-downloaded problems, "
+                    f"will skip them ({len(problems)} new problems available)"
+                )
+
+        # Apply limit AFTER filtering out existing problems
+        # This ensures --limit X downloads X NEW problems, not X total problems
         if options.limit and options.limit < len(problems):
-            self.logger.info(f"Limiting to {options.limit} problems as requested")
+            self.logger.info(
+                f"Limiting to {options.limit} new problems to download "
+                f"(out of {len(problems)} available)"
+            )
             problems = problems[: options.limit]
 
-        self.logger.info(f"Will process {len(problems)} problems")
+        self.logger.info(f"Will download {len(problems)} problems")
 
         # Notify observers that batch is starting
         self._notify_start(len(problems))

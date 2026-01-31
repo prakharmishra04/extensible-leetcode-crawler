@@ -144,7 +144,12 @@ class TestBatchDownloadUseCase:
     def test_execute_with_single_problem_skip_mode(
         self, use_case, mock_client, mock_repository, mock_observer, sample_problem
     ):
-        """Test execute with single problem in SKIP mode when problem exists."""
+        """Test execute with single problem in SKIP mode when problem exists.
+
+        With the new behavior, problems are pre-filtered in SKIP mode,
+        so already-existing problems are filtered out before download attempts.
+        This means stats.total will be 0 and no download attempts are made.
+        """
         # Setup
         mock_client.fetch_all_problems_with_status.return_value = [sample_problem]
         mock_repository.exists.return_value = True
@@ -157,20 +162,21 @@ class TestBatchDownloadUseCase:
         # Execute
         stats = use_case.execute(options)
 
-        # Verify
-        assert stats.total == 1
+        # Verify - problem was filtered out before download
+        assert stats.total == 0
         assert stats.downloaded == 0
-        assert stats.skipped == 1
+        assert stats.skipped == 0  # Not counted as skipped since pre-filtered
         assert stats.failed == 0
 
-        # Verify repository was checked but not saved
+        # Verify repository was checked during filtering but not saved
         mock_repository.exists.assert_called_once_with("two-sum", "leetcode")
         mock_repository.save.assert_not_called()
 
-        # Verify observer was notified
-        mock_observer.on_start.assert_called_once_with(1)
-        mock_observer.on_skip.assert_called_once()
+        # Verify observer was notified with 0 problems to download
+        mock_observer.on_start.assert_called_once_with(0)
         mock_observer.on_complete.assert_called_once()
+        # on_skip should not be called since problem was pre-filtered
+        mock_observer.on_skip.assert_not_called()
 
     def test_execute_with_single_problem_force_mode(
         self,
@@ -212,7 +218,9 @@ class TestBatchDownloadUseCase:
         mock_observer.on_progress.assert_called_once_with(1, 1, sample_problem)
         mock_observer.on_complete.assert_called_once()
 
-    def test_execute_with_difficulty_filter(self, use_case, mock_client, mock_observer):
+    def test_execute_with_difficulty_filter(
+        self, use_case, mock_client, mock_observer, mock_repository
+    ):
         """Test execute with difficulty filter."""
         # Setup
         easy_problem = Problem(
@@ -241,6 +249,7 @@ class TestBatchDownloadUseCase:
         )
 
         mock_client.fetch_all_problems_with_status.return_value = [easy_problem, hard_problem]
+        mock_repository.exists.return_value = False  # Problems don't exist yet
         options = BatchDownloadOptions(
             username="john_doe",
             platform="leetcode",
@@ -255,7 +264,7 @@ class TestBatchDownloadUseCase:
         assert stats.total == 1
         mock_observer.on_start.assert_called_once_with(1)
 
-    def test_execute_with_topic_filter(self, use_case, mock_client, mock_observer):
+    def test_execute_with_topic_filter(self, use_case, mock_client, mock_observer, mock_repository):
         """Test execute with topic filter."""
         # Setup
         array_problem = Problem(
@@ -284,6 +293,7 @@ class TestBatchDownloadUseCase:
         )
 
         mock_client.fetch_all_problems_with_status.return_value = [array_problem, graph_problem]
+        mock_repository.exists.return_value = False  # Problems don't exist yet
         options = BatchDownloadOptions(
             username="john_doe",
             platform="leetcode",
@@ -375,7 +385,11 @@ class TestBatchDownloadUseCase:
     def test_execute_with_multiple_observers(
         self, mock_client, mock_repository, mock_formatter, mock_logger, sample_problem
     ):
-        """Test execute notifies multiple observers."""
+        """Test execute notifies multiple observers.
+
+        With pre-filtering in SKIP mode, if problem exists, it's filtered out
+        before download, so observers are notified with 0 problems.
+        """
         # Setup
         observer1 = Mock()
         observer2 = Mock()
@@ -398,18 +412,23 @@ class TestBatchDownloadUseCase:
         # Execute
         stats = use_case.execute(options)
 
-        # Verify both observers were notified
-        observer1.on_start.assert_called_once_with(1)
-        observer2.on_start.assert_called_once_with(1)
-        observer1.on_skip.assert_called_once()
-        observer2.on_skip.assert_called_once()
+        # Verify both observers were notified with 0 problems (pre-filtered)
+        observer1.on_start.assert_called_once_with(0)
+        observer2.on_start.assert_called_once_with(0)
+        # on_skip should not be called since problem was pre-filtered
+        observer1.on_skip.assert_not_called()
+        observer2.on_skip.assert_not_called()
         observer1.on_complete.assert_called_once()
         observer2.on_complete.assert_called_once()
 
     def test_execute_handles_observer_exceptions(
         self, use_case, mock_client, mock_repository, mock_observer, sample_problem
     ):
-        """Test execute continues when observer raises exception."""
+        """Test execute continues when observer raises exception.
+
+        With pre-filtering in SKIP mode, if problem exists, it's filtered out
+        before download, so stats.total will be 0.
+        """
         # Setup
         mock_client.fetch_all_problems_with_status.return_value = [sample_problem]
         mock_repository.exists.return_value = True
@@ -425,5 +444,6 @@ class TestBatchDownloadUseCase:
         stats = use_case.execute(options)
 
         # Verify execution completed despite observer error
-        assert stats.total == 1
-        assert stats.skipped == 1
+        # Problem was pre-filtered, so total is 0
+        assert stats.total == 0
+        assert stats.skipped == 0
