@@ -120,7 +120,7 @@ class TestBatchDownloadUseCase:
     def test_execute_with_empty_problem_list(self, use_case, mock_client, mock_observer):
         """Test execute with no problems to download."""
         # Setup
-        mock_client.fetch_solved_problems.return_value = []
+        mock_client.fetch_all_problems_with_status.return_value = []
         options = BatchDownloadOptions(
             username="john_doe",
             platform="leetcode",
@@ -146,7 +146,7 @@ class TestBatchDownloadUseCase:
     ):
         """Test execute with single problem in SKIP mode when problem exists."""
         # Setup
-        mock_client.fetch_solved_problems.return_value = [sample_problem]
+        mock_client.fetch_all_problems_with_status.return_value = [sample_problem]
         mock_repository.exists.return_value = True
         options = BatchDownloadOptions(
             username="john_doe",
@@ -183,7 +183,7 @@ class TestBatchDownloadUseCase:
     ):
         """Test execute with single problem in FORCE mode."""
         # Setup
-        mock_client.fetch_solved_problems.return_value = [sample_problem]
+        mock_client.fetch_all_problems_with_status.return_value = [sample_problem]
         mock_client.fetch_problem.return_value = sample_problem
         mock_client.fetch_submission.return_value = sample_submission
         mock_repository.exists.return_value = True
@@ -240,7 +240,7 @@ class TestBatchDownloadUseCase:
             acceptance_rate=20.0,
         )
 
-        mock_client.fetch_solved_problems.return_value = [easy_problem, hard_problem]
+        mock_client.fetch_all_problems_with_status.return_value = [easy_problem, hard_problem]
         options = BatchDownloadOptions(
             username="john_doe",
             platform="leetcode",
@@ -283,7 +283,7 @@ class TestBatchDownloadUseCase:
             acceptance_rate=30.0,
         )
 
-        mock_client.fetch_solved_problems.return_value = [array_problem, graph_problem]
+        mock_client.fetch_all_problems_with_status.return_value = [array_problem, graph_problem]
         options = BatchDownloadOptions(
             username="john_doe",
             platform="leetcode",
@@ -317,7 +317,7 @@ class TestBatchDownloadUseCase:
             acceptance_rate=40.0,
         )
 
-        mock_client.fetch_solved_problems.return_value = [problem1, problem2]
+        mock_client.fetch_all_problems_with_status.return_value = [problem1, problem2]
         mock_repository.exists.return_value = False
 
         # Make first problem succeed, second fail
@@ -350,7 +350,7 @@ class TestBatchDownloadUseCase:
     ):
         """Test execute continues when submission fetch fails."""
         # Setup
-        mock_client.fetch_solved_problems.return_value = [sample_problem]
+        mock_client.fetch_all_problems_with_status.return_value = [sample_problem]
         mock_client.fetch_problem.return_value = sample_problem
         mock_client.fetch_submission.side_effect = Exception("Submission not found")
         mock_repository.exists.return_value = False
@@ -387,7 +387,7 @@ class TestBatchDownloadUseCase:
             logger=mock_logger,
         )
 
-        mock_client.fetch_solved_problems.return_value = [sample_problem]
+        mock_client.fetch_all_problems_with_status.return_value = [sample_problem]
         mock_repository.exists.return_value = True
         options = BatchDownloadOptions(
             username="john_doe",
@@ -411,7 +411,7 @@ class TestBatchDownloadUseCase:
     ):
         """Test execute continues when observer raises exception."""
         # Setup
-        mock_client.fetch_solved_problems.return_value = [sample_problem]
+        mock_client.fetch_all_problems_with_status.return_value = [sample_problem]
         mock_repository.exists.return_value = True
         mock_observer.on_start.side_effect = Exception("Observer error")
 

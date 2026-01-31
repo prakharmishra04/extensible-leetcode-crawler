@@ -117,7 +117,7 @@ class TestBatchDownloadCommandSuccess:
     ):
         """Test successful batch download with all problems downloaded."""
         # Arrange
-        mock_client.fetch_solved_problems.return_value = sample_problems
+        mock_client.fetch_all_problems_with_status.return_value = sample_problems
         mock_client.fetch_problem.side_effect = sample_problems
         mock_client.fetch_submission.return_value = Mock()
         mock_repository.exists.return_value = False
@@ -162,7 +162,7 @@ class TestBatchDownloadCommandSuccess:
     ):
         """Test batch download with some problems skipped."""
         # Arrange
-        mock_client.fetch_solved_problems.return_value = sample_problems
+        mock_client.fetch_all_problems_with_status.return_value = sample_problems
         mock_client.fetch_problem.side_effect = sample_problems
         mock_client.fetch_submission.return_value = Mock()
         # First problem exists, others don't
@@ -208,7 +208,7 @@ class TestBatchDownloadCommandSuccess:
     ):
         """Test batch download with difficulty filter."""
         # Arrange
-        mock_client.fetch_solved_problems.return_value = sample_problems
+        mock_client.fetch_all_problems_with_status.return_value = sample_problems
         # Only Easy and Medium problems should be downloaded
         easy_medium = [p for p in sample_problems if p.difficulty.level in ["Easy", "Medium"]]
         mock_client.fetch_problem.side_effect = easy_medium
@@ -251,7 +251,7 @@ class TestBatchDownloadCommandSuccess:
     ):
         """Test batch download with topic filter."""
         # Arrange
-        mock_client.fetch_solved_problems.return_value = sample_problems
+        mock_client.fetch_all_problems_with_status.return_value = sample_problems
         # Only problems with "Array" topic
         array_problems = [p for p in sample_problems if "Array" in p.topics]
         mock_client.fetch_problem.side_effect = array_problems
@@ -292,7 +292,7 @@ class TestBatchDownloadCommandErrors:
     ):
         """Test handling of user not found."""
         # Arrange
-        mock_client.fetch_solved_problems.side_effect = ProblemNotFoundException(
+        mock_client.fetch_all_problems_with_status.side_effect = ProblemNotFoundException(
             "nonexistent_user", "leetcode"
         )
 
@@ -326,7 +326,7 @@ class TestBatchDownloadCommandErrors:
     ):
         """Test handling of authentication error."""
         # Arrange
-        mock_client.fetch_solved_problems.side_effect = AuthenticationException(
+        mock_client.fetch_all_problems_with_status.side_effect = AuthenticationException(
             "leetcode", "Invalid session token"
         )
 
@@ -360,7 +360,7 @@ class TestBatchDownloadCommandErrors:
     ):
         """Test handling of network error."""
         # Arrange
-        mock_client.fetch_solved_problems.side_effect = NetworkException(
+        mock_client.fetch_all_problems_with_status.side_effect = NetworkException(
             "Connection timeout", url="https://leetcode.com/api", status_code=504
         )
 

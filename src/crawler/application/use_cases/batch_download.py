@@ -211,12 +211,15 @@ class BatchDownloadUseCase:
 
         # Fetch list of solved problems
         try:
-            self.logger.info(
-                f"Fetching solved problems for user '{options.username}'"
-                + (f" (limit: {options.limit})" if options.limit else "")
-            )
-            problems = self.client.fetch_solved_problems(options.username, limit=options.limit)
+            self.logger.info(f"Fetching all solved problems for user '{options.username}'")
+            # Use fetch_all_problems_with_status to get complete list of solved problems
+            problems = self.client.fetch_all_problems_with_status(status_filter="ac")
             self.logger.info(f"Found {len(problems)} solved problems")
+
+            # Apply limit if specified
+            if options.limit and options.limit < len(problems):
+                self.logger.info(f"Limiting to {options.limit} problems as requested")
+                problems = problems[: options.limit]
         except Exception as e:
             self.logger.error(f"Failed to fetch solved problems for user '{options.username}': {e}")
             raise

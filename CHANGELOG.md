@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## \[2.0.2\] - 2026-01-31
+
+### 🐛 Bug Fixes
+
+- **Fixed batch download to use `fetch_all_problems_with_status()`** - The batch download command now fetches ALL solved problems instead of just recent submissions, ensuring complete coverage
+- **Updated tests** - Fixed all unit tests to use the new method
+
+### 📝 Notes
+
+This patch ensures that `crawler batch` command now fetches all your solved problems, not just the recent 20-100. This was the critical missing piece from v2.0.1.
+
 ## \[2.0.1\] - 2026-01-31
 
 ### 🐛 Bug Fixes
