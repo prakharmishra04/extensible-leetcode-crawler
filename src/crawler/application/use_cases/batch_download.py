@@ -343,14 +343,48 @@ class BatchDownloadUseCase:
             self._notify_skip(problem, "Already exists")
             return
 
-        # Handle UPDATE mode
+        # Handle UPDATE mode - check if submission is newer
         if options.update_mode == UpdateMode.UPDATE and problem_exists:
-            # For UPDATE mode, we would need to check if submission is newer
-            # For now, we'll skip if it exists (can be enhanced later)
-            self.logger.debug(f"Skipping problem '{problem.id}' (already exists, mode=UPDATE)")
-            stats.skipped += 1
-            self._notify_skip(problem, "Already exists (UPDATE mode)")
-            return
+            # Get stored submission timestamp
+            stored_timestamp = self.repository.get_submission_timestamp(
+                problem.id, problem.platform
+            )
+
+            if stored_timestamp is not None:
+                # Fetch latest submission from platform to compare timestamps
+                try:
+                    latest_submission = self.client.fetch_submission(problem.id, options.username)
+
+                    # Compare timestamps - skip if stored submission is same or newer
+                    if latest_submission.timestamp <= stored_timestamp:
+                        self.logger.debug(
+                            f"Skipping problem '{problem.id}' "
+                            f"(stored submission is up-to-date, mode=UPDATE)"
+                        )
+                        stats.skipped += 1
+                        self._notify_skip(problem, "Submission is up-to-date")
+                        return
+                    else:
+                        self.logger.info(
+                            f"Newer submission found for '{problem.id}' "
+                            f"(platform: {latest_submission.timestamp}, "
+                            f"stored: {stored_timestamp})"
+                        )
+                        # Continue to download the newer submission
+                except Exception as e:
+                    self.logger.warning(
+                        f"Failed to fetch submission for comparison on '{problem.id}': {e}. "
+                        "Skipping update."
+                    )
+                    stats.skipped += 1
+                    self._notify_skip(problem, "Failed to check for newer submission")
+                    return
+            else:
+                # Problem exists but has no submission stored - re-download to add submission
+                self.logger.info(
+                    f"Problem '{problem.id}' exists but has no submission, will update"
+                )
+                # Continue to download
 
         # Download problem (FORCE mode or problem doesn't exist)
         self.logger.info(f"Downloading problem '{problem.id}'")

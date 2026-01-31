@@ -447,3 +447,143 @@ class TestBatchDownloadUseCase:
         # Problem was pre-filtered, so total is 0
         assert stats.total == 0
         assert stats.skipped == 0
+
+    def test_execute_update_mode_skips_when_submission_up_to_date(
+        self, use_case, mock_client, mock_repository, sample_problem, sample_submission
+    ):
+        """Test UPDATE mode skips problem when stored submission is up-to-date."""
+        # Setup
+        mock_client.fetch_all_problems_with_status.return_value = [sample_problem]
+        mock_repository.exists.return_value = True
+        mock_repository.get_submission_timestamp.return_value = 1234567890
+
+        # Platform has same or older submission
+        mock_client.fetch_submission.return_value = sample_submission  # timestamp=1234567890
+
+        options = BatchDownloadOptions(
+            username="john_doe",
+            platform="leetcode",
+            update_mode=UpdateMode.UPDATE,
+        )
+
+        # Execute
+        stats = use_case.execute(options)
+
+        # Verify problem was skipped
+        assert stats.total == 1
+        assert stats.downloaded == 0
+        assert stats.skipped == 1
+        assert stats.failed == 0
+
+    def test_execute_update_mode_downloads_when_newer_submission_exists(
+        self, use_case, mock_client, mock_repository, sample_problem, sample_submission
+    ):
+        """Test UPDATE mode downloads problem when platform has newer submission."""
+        # Setup
+        mock_client.fetch_all_problems_with_status.return_value = [sample_problem]
+        mock_repository.exists.return_value = True
+        mock_repository.get_submission_timestamp.return_value = 1000000000  # Older
+
+        # Platform has newer submission
+        newer_submission = Mock()
+        newer_submission.timestamp = 1640995200  # Newer
+        mock_client.fetch_submission.return_value = newer_submission
+        mock_client.fetch_problem.return_value = sample_problem
+
+        options = BatchDownloadOptions(
+            username="john_doe",
+            platform="leetcode",
+            update_mode=UpdateMode.UPDATE,
+        )
+
+        # Execute
+        stats = use_case.execute(options)
+
+        # Verify problem was downloaded
+        assert stats.total == 1
+        assert stats.downloaded == 1
+        assert stats.skipped == 0
+        assert stats.failed == 0
+        mock_repository.save.assert_called_once()
+
+    def test_execute_update_mode_downloads_when_no_submission_stored(
+        self, use_case, mock_client, mock_repository, sample_problem, sample_submission
+    ):
+        """Test UPDATE mode downloads problem when it exists but has no submission."""
+        # Setup
+        mock_client.fetch_all_problems_with_status.return_value = [sample_problem]
+        mock_repository.exists.return_value = True
+        mock_repository.get_submission_timestamp.return_value = None  # No submission stored
+
+        mock_client.fetch_problem.return_value = sample_problem
+        mock_client.fetch_submission.return_value = sample_submission
+
+        options = BatchDownloadOptions(
+            username="john_doe",
+            platform="leetcode",
+            update_mode=UpdateMode.UPDATE,
+        )
+
+        # Execute
+        stats = use_case.execute(options)
+
+        # Verify problem was downloaded
+        assert stats.total == 1
+        assert stats.downloaded == 1
+        assert stats.skipped == 0
+        assert stats.failed == 0
+        mock_repository.save.assert_called_once()
+
+    def test_execute_update_mode_skips_when_fetch_submission_fails(
+        self, use_case, mock_client, mock_repository, sample_problem
+    ):
+        """Test UPDATE mode skips problem when fetching submission for comparison fails."""
+        # Setup
+        mock_client.fetch_all_problems_with_status.return_value = [sample_problem]
+        mock_repository.exists.return_value = True
+        mock_repository.get_submission_timestamp.return_value = 1234567890
+
+        # Fetching submission for comparison fails
+        mock_client.fetch_submission.side_effect = Exception("API error")
+
+        options = BatchDownloadOptions(
+            username="john_doe",
+            platform="leetcode",
+            update_mode=UpdateMode.UPDATE,
+        )
+
+        # Execute
+        stats = use_case.execute(options)
+
+        # Verify problem was skipped due to error
+        assert stats.total == 1
+        assert stats.downloaded == 0
+        assert stats.skipped == 1
+        assert stats.failed == 0
+
+    def test_execute_update_mode_downloads_when_problem_not_exists(
+        self, use_case, mock_client, mock_repository, sample_problem, sample_submission
+    ):
+        """Test UPDATE mode downloads problem when it doesn't exist yet."""
+        # Setup
+        mock_client.fetch_all_problems_with_status.return_value = [sample_problem]
+        mock_repository.exists.return_value = False  # Problem doesn't exist
+
+        mock_client.fetch_problem.return_value = sample_problem
+        mock_client.fetch_submission.return_value = sample_submission
+
+        options = BatchDownloadOptions(
+            username="john_doe",
+            platform="leetcode",
+            update_mode=UpdateMode.UPDATE,
+        )
+
+        # Execute
+        stats = use_case.execute(options)
+
+        # Verify problem was downloaded
+        assert stats.total == 1
+        assert stats.downloaded == 1
+        assert stats.skipped == 0
+        assert stats.failed == 0
+        mock_repository.save.assert_called_once()

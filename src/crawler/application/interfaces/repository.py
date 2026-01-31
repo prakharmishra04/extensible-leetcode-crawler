@@ -167,3 +167,43 @@ class ProblemRepository(ABC):
             times has the same effect as calling it once.
         """
         pass
+
+    @abstractmethod
+    def get_submission_timestamp(self, problem_id: str, platform: str) -> Optional[int]:
+        """
+        Get the timestamp of the stored submission for a problem.
+
+        This method is used to determine if a newer submission exists on the
+        platform, enabling smart UPDATE mode behavior that only re-downloads
+        problems when there's a newer submission available.
+
+        Args:
+            problem_id: The platform-specific problem identifier
+            platform: The platform name (e.g., "leetcode", "hackerrank")
+
+        Returns:
+            Optional[int]: Unix timestamp of the stored submission, or None if:
+                          - The problem doesn't exist in the repository
+                          - The problem exists but has no submission stored
+
+        Raises:
+            RepositoryException: If the retrieval operation fails
+
+        Example:
+            >>> repo = FileSystemRepository(...)
+            >>> timestamp = repo.get_submission_timestamp("two-sum", "leetcode")
+            >>> if timestamp:
+            ...     print(f"Stored submission from: {timestamp}")
+            "Stored submission from: 1640995200"
+            >>>
+            >>> # Problem without submission
+            >>> timestamp = repo.get_submission_timestamp("new-problem", "leetcode")
+            >>> print(timestamp)
+            None
+
+        Note:
+            This method is specifically designed for UPDATE mode optimization.
+            It allows checking if a re-download is needed without loading the
+            entire problem entity, which is more efficient for large repositories.
+        """
+        pass

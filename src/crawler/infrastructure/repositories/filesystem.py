@@ -222,6 +222,50 @@ class FileSystemRepository(ProblemRepository):
             self.logger.error(f"Failed to delete problem {problem_id}: {e}")
             raise RepositoryException(f"Failed to delete problem {problem_id}") from e
 
+    def get_submission_timestamp(self, problem_id: str, platform: str) -> Optional[int]:
+        """
+        Get the timestamp of the stored submission for a problem.
+
+        Reads the metadata.json file and extracts the submission timestamp
+        if a submission exists.
+
+        Args:
+            problem_id: The platform-specific problem identifier
+            platform: The platform name
+
+        Returns:
+            Optional[int]: Unix timestamp of the stored submission, or None if
+                          the problem doesn't exist or has no submission
+
+        Raises:
+            RepositoryException: If the retrieval operation fails
+        """
+        try:
+            problem_dir = self.base_path / platform / problem_id
+            metadata_path = problem_dir / "metadata.json"
+
+            if not metadata_path.exists():
+                return None
+
+            # Read and parse metadata
+            metadata_text = metadata_path.read_text(encoding="utf-8")
+            metadata = json.loads(metadata_text)
+
+            # Check if submission exists in metadata
+            if "submission" in metadata and metadata["submission"]:
+                return metadata["submission"].get("timestamp")
+
+            return None
+
+        except json.JSONDecodeError as e:
+            self.logger.error(f"Failed to parse metadata for {problem_id}: {e}")
+            raise RepositoryException(f"Failed to parse metadata for {problem_id}") from e
+        except Exception as e:
+            self.logger.error(f"Failed to retrieve submission timestamp for {problem_id}: {e}")
+            raise RepositoryException(
+                f"Failed to retrieve submission timestamp for {problem_id}"
+            ) from e
+
     def _serialize_problem(self, problem: Problem, submission: Optional[Submission] = None) -> dict:
         """
         Serialize a Problem entity to a dictionary for JSON storage.

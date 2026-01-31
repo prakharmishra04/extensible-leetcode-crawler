@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## \[Unreleased\]
+
+### ✨ Features
+
+- **Implemented smart UPDATE mode** - UPDATE mode now properly detects newer submissions on the platform and only re-downloads when necessary. Previously, UPDATE mode behaved identically to SKIP mode.
+  - Compares stored submission timestamp with platform submission timestamp
+  - Only re-downloads if platform has a newer submission
+  - Automatically downloads problems that exist but have no submission stored
+  - Gracefully handles comparison failures by skipping the problem
+
+### 🔧 Technical Improvements
+
+- **Added `get_submission_timestamp()` to repository interface** - New method enables efficient timestamp comparison without loading entire problem entities
+- **Enhanced batch download logic** - UPDATE mode now makes intelligent decisions about when to re-download based on submission freshness
+
+### 📝 Notes
+
+This update makes UPDATE mode work as originally intended - it's now the recommended mode for keeping your local problem repository synchronized with the platform. Use:
+
+- `--mode skip` - Never re-download existing problems (fastest)
+- `--mode update` - Re-download only when newer submissions exist (smart sync)
+- `--mode force` - Always re-download everything (complete refresh)
+
 ## \[2.0.3\] - 2026-01-31
 
 ### 🐛 Bug Fixes

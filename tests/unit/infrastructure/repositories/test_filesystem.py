@@ -356,3 +356,69 @@ class TestFileSystemRepository:
         data2 = temp_repo._serialize_problem(reconstructed)
 
         assert data == data2
+
+    def test_get_submission_timestamp_returns_timestamp_when_exists(
+        self, temp_repo, sample_problem, sample_submission
+    ):
+        """Test that get_submission_timestamp returns timestamp for saved submission."""
+        temp_repo.save(sample_problem, sample_submission)
+
+        timestamp = temp_repo.get_submission_timestamp("two-sum", "leetcode")
+
+        assert timestamp == 1234567890
+
+    def test_get_submission_timestamp_returns_none_when_problem_not_exists(self, temp_repo):
+        """Test that get_submission_timestamp returns None for non-existent problem."""
+        timestamp = temp_repo.get_submission_timestamp("non-existent", "leetcode")
+
+        assert timestamp is None
+
+    def test_get_submission_timestamp_returns_none_when_no_submission(
+        self, temp_repo, sample_problem
+    ):
+        """Test that get_submission_timestamp returns None when problem has no submission."""
+        temp_repo.save(sample_problem)  # Save without submission
+
+        timestamp = temp_repo.get_submission_timestamp("two-sum", "leetcode")
+
+        assert timestamp is None
+
+    def test_get_submission_timestamp_raises_exception_on_invalid_json(
+        self, temp_repo, sample_problem, tmp_path
+    ):
+        """Test that get_submission_timestamp raises exception for invalid JSON."""
+        temp_repo.save(sample_problem)
+
+        # Corrupt the metadata file
+        metadata_path = tmp_path / "leetcode" / "two-sum" / "metadata.json"
+        metadata_path.write_text("invalid json", encoding="utf-8")
+
+        with pytest.raises(RepositoryException):
+            temp_repo.get_submission_timestamp("two-sum", "leetcode")
+
+    def test_get_submission_timestamp_with_different_timestamps(
+        self, temp_repo, sample_problem, sample_submission
+    ):
+        """Test that get_submission_timestamp correctly returns different timestamps."""
+        # Save first submission
+        temp_repo.save(sample_problem, sample_submission)
+        timestamp1 = temp_repo.get_submission_timestamp("two-sum", "leetcode")
+
+        # Create and save a newer submission
+        newer_submission = Submission(
+            id="sub-456",
+            problem_id="two-sum",
+            language="Python",
+            code="def twoSum(nums, target):\n    # newer solution\n    pass",
+            status=SubmissionStatus.ACCEPTED,
+            runtime="48 ms",
+            memory="14.8 MB",
+            timestamp=1640995200,  # Newer timestamp
+            percentiles=Percentiles(runtime=90.0, memory=92.0),
+        )
+        temp_repo.save(sample_problem, newer_submission)
+        timestamp2 = temp_repo.get_submission_timestamp("two-sum", "leetcode")
+
+        assert timestamp1 == 1234567890
+        assert timestamp2 == 1640995200
+        assert timestamp2 > timestamp1
