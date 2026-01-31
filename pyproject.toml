@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "coding-platform-crawler"
-version = "2.0.2"
+version = "2.0.3"
 description = "A well-architected, extensible Python toolkit for downloading and managing coding problems from LeetCode and other platforms"
 readme = "README.md"
 requires-python = ">=3.8"
